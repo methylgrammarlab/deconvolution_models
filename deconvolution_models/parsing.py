@@ -32,7 +32,7 @@ epireadToBedgraph has only one mat
 '''
 class MixtureReader(EpiRunner):
 
-    def __init__(self, regions, mixture, CpG_file, outfile, epiformat="old_epiread", header=False):
+    def __init__(self, regions, mixture, CpG_file, outfile=None, epiformat="old_epiread", header=False):
         super().__init__(regions, CpG_file, [mixture], outfile, epiformat, header=header, bedfile=True)
 
     def sum_regions(self): #celfie output, one value per TIM
@@ -42,7 +42,7 @@ class MixtureReader(EpiRunner):
         '''
         self.parse_multiple_chromosomes()
         self.calc_coverage()
-        self.calc_methylation()
+        self.calc_methylated()
         return [np.sum(x) for x in self.methylation], [np.sum(x) for x in self.coverage]
 
     def get_matrices(self): #for celfie-plus
@@ -62,7 +62,7 @@ class AtlasReader(EpiRunner):
     e.g. chrN:200-201, chrN:201-202. This has to be the same file the epireads
     are aligned to
     '''
-    def __init__(self, tims, atlas_file, cpg_file, outfile):
+    def __init__(self, regions, atlas_file, CpG_file, outfile=None, epiformat="old_epiread", header=False):
         '''
 
         :param tims: Tissue informative markers, bed format
@@ -71,7 +71,7 @@ class AtlasReader(EpiRunner):
         :param outfile: path to putput file
         '''
         self.atlas = atlas_file
-        super().__init__(tims, cpg_file, [atlas_file], outfile)
+        super().__init__(regions, CpG_file, [atlas_file], outfile, epiformat, header=header, bedfile=True)
         self.init_beta()
 
     def init_beta(self):

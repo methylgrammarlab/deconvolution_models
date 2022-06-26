@@ -2,7 +2,7 @@
 import numpy as np
 from epiread_tools.naming_conventions import *
 
-class READMe:
+class READMeth:
     '''
     Read-based EM Algorithm for Deconvolution of Methylation sequencing
     '''
