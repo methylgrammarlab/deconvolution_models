@@ -165,7 +165,7 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
 
     # intialize gamma to reference values
     gamma = y / y_depths
-
+    i = 0
     # perform EM for a given number of iterations
     for i in range(num_iterations):
 
@@ -179,7 +179,6 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
         if i and ( #I added this
             alpha_diff + gamma_diff < convergence_criteria
         ):  # if convergence criteria, break
-            print(i, "celfie break")
             break
 
         else:  # set current evaluation of alpha and gamma
@@ -190,53 +189,4 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
     ll = log_likelihood(
         p0, p1, x_depths, x, y_depths, y, gamma, alpha
     )  # print ll for random restarts
-    print("celfie", alpha)
     return alpha, gamma, ll, i
-#%%
-
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument("data_file", type=str)
-parser.add_argument("metadata_file", type=str)
-parser.add_argument("num_iterations", type=int)
-parser.add_argument("random_restarts", type=int)
-parser.add_argument("outpath", type=str)
-
-
-
-args = parser.parse_args()
-x, x_depths = np.load(args.data_file, allow_pickle=True)
-atlas = pd.read_csv(args.metadata_file, sep="\t", header=None).values[:,3:]
-y = atlas[:,::2]
-y_depths = atlas[:,1::2]
-y_depths = y_depths.T.astype(int)
-y = y.T.astype(int)
-x = x.reshape(-1, 1).T
-x_depths = x_depths.reshape(-1, 1).T
-restarts = []
-for r in range(args.random_restarts):
-    estimated_alpha, estimated_gamma, ll, i = em(
-        x, x_depths, y, y_depths, args.num_iterations, 0.001
-    )
-    restarts.append((ll, estimated_alpha, i))
-
-ll_max, alpha_max, i_max = max(restarts)
-alpha_max = alpha_max.flatten()
-np.save(args.outpath, [alpha_max, np.array([i_max])], allow_pickle=True)
-#%%
-# data_file = "/Users/ireneu/PycharmProjects/in-silico_deconvolution/debugging/EM_regions_100_6_rep9_celfie_data.npy"
-# metadata_file = "/Users/ireneu/PycharmProjects/in-silico_deconvolution/debugging/EM_regions_100_tims_summed.txt"
-# x, x_depths = np.load(data_file, allow_pickle=True)
-# atlas = pd.read_csv(metadata_file, sep="\t", header=None).values[:,3:]
-# y = atlas[:,::2]
-# y_depths = atlas[:,1::2]
-# y_depths = y_depths.T.astype(int)
-# y = y.T.astype(int)
-# x = x.reshape(-1, 1).T
-# x_depths = x_depths.reshape(-1, 1).T
-# estimated_alpha, estimated_gamma, ll, i = em(
-#     x, x_depths, y, y_depths, 1000, 0.001
-# )
-
-

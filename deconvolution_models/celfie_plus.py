@@ -1,6 +1,5 @@
 
 import numpy as np
-
 from epiread_tools.naming_conventions import *
 
 class READMe:
@@ -89,48 +88,14 @@ class READMe:
         :return: cell type proportions, log-likelihood
         '''
         self.init_alpha()
-
+        i = 0
         for i in range(self.num_iterations):
             z = self.simplified_expectation(self.alpha)
             new_alpha = self.maximization(z)
             if i and self.test_convergence(new_alpha):
-                print(i, "two-step break")
                 break
 
             else:  # set current evaluation of alpha and gamma
                 self.alpha = new_alpha
-        print("two-step")
         return self.alpha, i
 
-
-
-#%%
-import pickle
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument("data_file", type=str)
-parser.add_argument("metadata_file", type=str)
-parser.add_argument("num_iterations", type=int)
-parser.add_argument("random_restarts", type=int)
-parser.add_argument("outpath", type=str)
-
-
-args = parser.parse_args()
-reads = np.load(args.data_file, allow_pickle=True)
-with open(args.metadata_file, 'rb') as infile:
-    atlas = pickle.load(infile)
-assert [x.shape[1] for x in reads] == [x.shape[1] for x in atlas]
-r = READMe(reads, atlas, num_iterations=args.num_iterations, convergence_criteria=0.001)
-estimated_alpha, i = r.two_step()
-np.save(args.outpath, [estimated_alpha, np.array([i])], allow_pickle=True)
-
-#%%
-# reads = np.load("/Users/ireneu/PycharmProjects/in-silico_deconvolution/debugging/EM_regions_100_6_rep9_celfie_plus_data.npy", allow_pickle=True)
-# metadata = "/Users/ireneu/PycharmProjects/in-silico_deconvolution/debugging/EM_regions_100_celfie_plus_atlas.bedgraph"
-# with open(metadata, 'rb') as infile:
-#     atlas = pickle.load(infile)
-#
-# assert [x.shape[1] for x in reads] == [x.shape[1] for x in atlas]
-# r = READMe(reads, atlas, num_iterations=1000, convergence_criteria=0.001)
-# estimated_alpha, i = r.two_step()

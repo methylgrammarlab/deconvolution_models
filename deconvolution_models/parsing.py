@@ -54,7 +54,6 @@ class MixtureReader(EpiRunner):
         return self.matrices
 
 
-
 class AtlasReader(EpiRunner):
     '''
     a note on strandedness:

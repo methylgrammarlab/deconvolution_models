@@ -25,10 +25,7 @@ setuptools.setup(
     include_package_data=True,
     entry_points={
     "console_scripts":[
-    "celfie = deconvolution_models.celfie:main",
-    "celfie-plus = deconvolution_models.celfie_plus:main",
-    "epistate = deconvolution_models.epistate:main",
-    "epistate-plus = deconvolution_models.epistate_plus:main",
+    "deconvolution = deconvolution_models.main:main", #TODO: change to main
     ]
     },
 )
