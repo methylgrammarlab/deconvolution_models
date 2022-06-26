@@ -193,6 +193,7 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
     print("celfie", alpha)
     return alpha, gamma, ll, i
 #%%
+
 import argparse
 
 parser = argparse.ArgumentParser()
