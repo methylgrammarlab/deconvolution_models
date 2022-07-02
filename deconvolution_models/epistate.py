@@ -1,5 +1,7 @@
 
 import numpy as np
+import sys
+sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 from epiread_tools.naming_conventions import *
 
 class READMeth:

@@ -1,8 +1,10 @@
 
 import numpy as np
+import sys
+sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 from epiread_tools.naming_conventions import *
 
-class READMeth:
+class CelfiePlus:
     '''
     Read-based EM Algorithm for Deconvolution of Methylation sequencing
     '''
@@ -15,6 +17,7 @@ class READMeth:
         :param convergence_criteria: stopping criteria for em
         '''
         self.x = self.filter_empty_rows(mixtures)
+        # self.x = mixtures
         self.beta = [self.add_pseudocounts(x) for x in beta]
         self.num_iterations = num_iterations
         self.convergence_criteria = convergence_criteria
@@ -88,7 +91,7 @@ class READMeth:
         :return: cell type proportions, log-likelihood
         '''
         self.init_alpha()
-        i = 0
+
         for i in range(self.num_iterations):
             z = self.simplified_expectation(self.alpha)
             new_alpha = self.maximization(z)
@@ -98,4 +101,3 @@ class READMeth:
             else:  # set current evaluation of alpha and gamma
                 self.alpha = new_alpha
         return self.alpha, i
-

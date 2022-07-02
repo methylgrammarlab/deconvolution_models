@@ -11,6 +11,8 @@ https://github.com/christacaggiano/celfie
 import bottleneck as bn  # substantially speeds up calculations with nan's
 import numpy as np
 import pandas as pd
+import sys
+sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 from epiread_tools.naming_conventions import *
 
 #%%
