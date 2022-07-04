@@ -1,4 +1,5 @@
 import click
+import json
 from celfie import em as celfie
 from celfie_plus import CelfiePlus as celfie_plus
 import numpy as np
@@ -120,34 +121,24 @@ class EpistatePlus(CelfiePlus):
 #%%
 
 @click.command()
-@click.argument('mixture')
-@click.argument('atlas')
-@click.argument('regions')
-@click.argument('cpg_coordinates')
-@click.argument('outfile')
-@click.option('--header', is_flag=True, help="bedgraph with regions to process has header")
-@click.option('-A', '--coords', is_flag=True, help='epiread files contain coords', default=False)
 @click.option('--model',
               type=click.Choice(['celfie', 'celfie-plus', 'epistate', 'epistate-plus'], case_sensitive=False))
-@click.option('--max_iterations', default=1000)
-@click.option('--random_restarts', default=1)
-@click.option('--stop_criterion', default=0.001)
+@click.option('-j', '--json', help='run from json config file')
 @click.version_option()
-def main(mixture,atlas,regions, cpg_coorfinates, outfile, **kwargs):
+def main(**kwargs):
     """deconvolute epiread file using atlas"""
-    if kwargs["model"]=='celfie':
+    config = json.load(kwargs["json"])
+    config.update(kwargs)
+    if config["model"]=='celfie':
         model=Celfie
-    elif kwargs["model"]=='celfie-plus':
+    elif config["model"]=='celfie-plus':
         model = CelfiePlus
-    elif kwargs["model"]=='epistate':
+    elif config["model"]=='epistate':
         model=Epistate
     else:
         model=EpistatePlus
-    epiformat = "old_epiread"
-    if kwargs["coords"]:
-        epiformat = "old_epiread_A"
 
-    em_model = model(mixture,atlas,regions, cpg_coorfinates, outfile,epiformat,**kwargs)
+    em_model = model(config)
     em_model.run_model()
 
 if __name__ == '__main__':
