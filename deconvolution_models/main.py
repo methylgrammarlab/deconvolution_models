@@ -1,7 +1,7 @@
 import click
 import json
-# import sys
-# sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
+import sys
+sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 # sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/deconvolution_models")
 from deconvolution_models.celfie import em as celfie
 from deconvolution_models.celfie_plus import CelfiePlus as celfie_plus
@@ -147,32 +147,41 @@ class EpistatePlus(Epistate):
         self.alpha, self.i = r.em()
 #%%
 
-@click.command()
-@click.option('--model',
-              type=click.Choice(['celfie', 'celfie-plus', 'epistate', 'epistate-plus'], case_sensitive=False))
-@click.option('-j', '--json', help='run from json config file')
-@click.version_option()
-def main(**kwargs):
-    """deconvolute epiread file using atlas"""
-    config = json.load(kwargs["json"])
-    config.update(kwargs)
-    if config["model"]=='celfie':
-        model=Celfie
-    elif config["model"]=='celfie-plus':
-        model = CelfiePlus
-    elif config["model"]=='epistate':
-        model=Epistate
-    else:
-        model=EpistatePlus
-
-    em_model = model(config)
-    if config["from_npy"]:
-        em_model.run_from_npy()
-    else:
-        em_model.run_model()
-
-if __name__ == '__main__':
-    main()
+# @click.command()
+# @click.option('--model',
+#               type=click.Choice(['celfie', 'celfie-plus', 'epistate', 'epistate-plus'], case_sensitive=False))
+# @click.option('-j', '--json', help='run from json config file')
+# @click.version_option()
+# def main(**kwargs):
+#     """deconvolute epiread file using atlas"""
+#     config = json.load(kwargs["json"])
+#     config.update(kwargs)
+#     if config["model"]=='celfie':
+#         model=Celfie
+#     elif config["model"]=='celfie-plus':
+#         model = CelfiePlus
+#     elif config["model"]=='epistate':
+#         model=Epistate
+#     else:
+#         model=EpistatePlus
+#
+#     em_model = model(config)
+#     if config["from_npy"]:
+#         em_model.run_from_npy()
+#     else:
+#         em_model.run_model()
+#
+# if __name__ == '__main__':
+#     main()
 
 #%%
+config = {'simulator': 'epistate', 't': 25, 'coverage': 10, 'm_per_region': 6, 'regions_per_t': 40, 'num_iterations': 1000,
+          'atlas_coverage': 1000, 'random_restarts': 1, "stop_criterion":0.001,
+          'theta_high': 0.76, 'theta_low': 0.24, 'lambda_high': 1, 'lambda_low': 0,
+          "models":["celfie-plus", "celfie", "epistate-plus","epistate"],
+          "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/26_rep2_data.npy",
+          "metadata_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/26_rep2_metadata_epistate.npy",
 
+          "outfile":None}
+r = Epistate(config)
+r.run_from_npy()

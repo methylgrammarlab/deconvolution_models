@@ -21,11 +21,14 @@ class READMeth:
         :param convergence_criteria: stopping criteria for em
         '''
         self.x = mixtures
+        self.x_c_v = [any(~(x == NOVAL)) for x in self.x]
         self.Lt = self.add_pseudocounts(lambda_t)
-        self.log_Lt =  [np.log(t) for t in self.Lt]
-        self.log_one_minus_Lt = [np.log(1-t) for t in self.Lt]
         self.thetaH = theta_high
         self.thetaL = theta_low
+        self.filter_no_coverage()
+
+        self.log_Lt =  [np.log(t) for t in self.Lt]
+        self.log_one_minus_Lt = [np.log(1-t) for t in self.Lt]
         self.log_thetaH = [np.log(t) for t in self.thetaH]
         self.log_thetaL = [np.log(t) for t in self.thetaL]
         self.log_one_minus_thetaH = [np.log(1-t) for t in self.thetaH]
@@ -38,6 +41,12 @@ class READMeth:
         c, m = [arr.shape[0] for arr in self.x], [arr.shape[1] for arr in self.x]
         self.c, self.m = np.sum(c), np.sum(m)
         self.alpha = alpha
+
+    def filter_no_coverage(self):
+        self.x = self.x[self.x_c_v]
+        self.Lt = self.Lt[self.x_c_v]
+        self.thetaH = self.thetaH[self.x_c_v]
+        self.thetaL = self.thetaL[self.x_c_v]
 
 
     def add_pseudocounts(self, list_of_arrays):
