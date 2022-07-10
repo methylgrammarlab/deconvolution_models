@@ -1,6 +1,6 @@
 import pytest
-import sys
-sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
+# import sys
+# sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 from epiread_tools.naming_conventions import *
 import numpy as np
 from deconvolution_models.celfie import em as celfie

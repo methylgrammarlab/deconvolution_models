@@ -1,12 +1,12 @@
 import click
 import json
-import sys
-sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
-sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/deconvolution_models")
-from celfie import em as celfie
-from celfie_plus import CelfiePlus as celfie_plus
-from epistate import READMeth as epistate
-from epistate_plus import READMeth as epistate_plus
+# import sys
+# sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
+# sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/deconvolution_models")
+from deconvolution_models.celfie import em as celfie
+from deconvolution_models.celfie_plus import CelfiePlus as celfie_plus
+from deconvolution_models.epistate import READMeth as epistate
+from deconvolution_models.epistate_plus import READMeth as epistate_plus
 import numpy as np
 from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader
 from epiread_tools.naming_conventions import *
