@@ -16,5 +16,5 @@ pip install git+https://<PERSONAL ACCESS TOKEN>@github.com/methylgrammarlab/deco
 
 to deconvolute:
 ```
-deconvolution --celfie <mixture> <atlas> <max_iterations> <random_restarts> <outfile>
+deconvolution -j <config.json>
 ```

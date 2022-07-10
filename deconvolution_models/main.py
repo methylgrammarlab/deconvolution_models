@@ -176,11 +176,3 @@ if __name__ == '__main__':
 
 #%%
 
-# config = {'simulator': 'random', 't': 4, 'coverage': 10, 'm_per_region': 5, 'regions_per_t': 12, 'num_iterations': 1000,
-#           'atlas_coverage': 1000, 'random_restarts': 1, 'true_alpha': '[0.5,0.25,0.1,0.05]', "stop_criterion":0.001,
-#           'theta_high': np.nan, 'theta_low': np.nan, 'lambda_high': np.nan, 'lambda_low': np.nan,
-#           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_data.npy",
-#           "metadata_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_metadata_epistate.npy",
-#           "outfile":None}
-# r = EpistatePlus(config)
-# r.run_from_npy()
