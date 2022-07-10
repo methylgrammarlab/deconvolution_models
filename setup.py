@@ -25,7 +25,7 @@ setuptools.setup(
     include_package_data=True,
     entry_points={
     "console_scripts":[
-    "deconvolution = deconvolution_models.main:main", #TODO: change to main
+    "deconvolution = deconvolution_models.main:main",
     ]
     },
 )

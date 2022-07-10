@@ -1,10 +1,13 @@
 import click
 import json
-from celfie import em as celfie
-from celfie_plus import CelfiePlus as celfie_plus
-import numpy as np
 import sys
 sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
+sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/deconvolution_models")
+from celfie import em as celfie
+from celfie_plus import CelfiePlus as celfie_plus
+from epistate import READMeth as epistate
+from epistate_plus import READMeth as epistate_plus
+import numpy as np
 from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader
 from epiread_tools.naming_conventions import *
 from epiread_tools.em_utils import calc_coverage, calc_methylated
@@ -25,7 +28,8 @@ class NotImplementedError(Exception):
 class EMmodel:
     def __init__(self, config):
         self.config = config
-        self.reader = epiformat_to_reader[self.config["epiformat"]]
+        if "epiformat" in self.config:
+            self.reader = epiformat_to_reader[self.config["epiformat"]]
         self.name, self.alpha, self.i = None, None, None
 
     def read_mixture(self):
@@ -34,11 +38,19 @@ class EMmodel:
     def read_atlas(self):
         raise NotImplementedError("read_atlas", self.name)
 
+    def load_npy(self):
+        raise NotImplementedError("load_npy", self.name)
+
     def write_output(self):
-        np.save(self.outfile, [self.alpha, np.array([self.i])], allow_pickle=True)
+        np.save(self.config['outfile'], [self.alpha, np.array([self.i])], allow_pickle=True)
 
     def deconvolute(self):
         raise NotImplementedError("deconvolute", self.name)
+
+    def run_from_npy(self):
+        self.load_npy()
+        self.deconvolute()
+        self.write_output()
 
     def run_model(self):
         self.read_mixture()
@@ -62,12 +74,19 @@ class Celfie(EMmodel):
         reader = AtlasReader(self.config)
         self.y, self.y_depths = reader.meth_cov_to_sum()
 
+    def load_npy(self):
+        self.matrices = np.load(self.config["data_file"], allow_pickle=True)
+        self.y, self.y_depths = np.load(self.config["metadata_file"], allow_pickle=True)
+        self.methylation, self.coverage = calc_methylated(self.matrices), calc_coverage(self.matrices)
+        self.x, self.x_depths = np.array([np.sum(x) for x in self.methylation]),\
+                                np.array([np.sum(x) for x in self.coverage])
+
     def deconvolute(self):
         restarts = []
         for r in range(self.config['random_restarts']):
             estimated_alpha, estimated_gamma, ll, i = celfie(
-                self.x.reshape((1,-1)), self.x_depths.reshape((1,-1)), self.y.T, self.y_depths.T,
-                self.config['max_iterations'], self.config['stop_criterion']
+                self.x.reshape((1,-1)), self.x_depths.reshape((1,-1)), self.y.astype(int), self.y_depths,
+                self.config['num_iterations'], self.config['stop_criterion']
             )
             restarts.append((ll, estimated_alpha, i))
         ll_max, alpha_max, i_max = max(restarts)
@@ -91,33 +110,41 @@ class CelfiePlus(EMmodel):
         reader = AtlasReader(self.config)
         self.atlas_matrices = reader.meth_cov_to_beta_matrices()
 
+    def load_npy(self):
+        self.matrices = np.load(self.config["data_file"], allow_pickle=True)
+        self.atlas_matrices = np.load(self.config["metadata_file"], allow_pickle=True)
+
     def deconvolute(self):
         assert [x.shape[1] for x in self.matrices] == [x.shape[1] for x in self.atlas_matrices]
-        r = celfie_plus(self.matrices, self.atlas_matrices, num_iterations=self.config['max_iterations'],
+        r = celfie_plus(self.matrices, self.atlas_matrices, num_iterations=self.config['num_iterations'],
                         convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.two_step()
 
-class Epistate(CelfiePlus): #TODO: load lambdas and thetas
+class Epistate(CelfiePlus): #TODO: load lambdas and thetas from file
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = "epistate"
 
-    def deconvolute(self):
-        # r = epistate(reads, lambdas, thetaH, thetaL, num_iterations=args.num_iterations,
-        #            convergence_criteria=self.stop_criterion)
-        # self.alpha, self.i = r.two_step()
-        pass
+    def load_npy(self):
+        self.matrices = np.load(self.config["data_file"], allow_pickle=True)
+        self.thetaH, self.thetaL, self.lambdas = np.load(self.config["metadata_file"], allow_pickle=True)
 
-class EpistatePlus(CelfiePlus):
+    def deconvolute(self):
+        r = epistate(self.matrices, self.lambdas, self.thetaH, self.thetaL,
+                     num_iterations=self.config["num_iterations"],
+                   convergence_criteria=self.config['stop_criterion'])
+        self.alpha, self.i = r.two_step()
+
+class EpistatePlus(Epistate):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = "epistate-plus"
 
     def deconvolute(self):
-        # r = epistate_plus(reads, lambdas, thetaH, thetaL, num_iterations=args.num_iterations,
-        #            convergence_criteria=self.stop_criterion)
-        # estimated_alpha, i = r.em()
-        pass
+        r = epistate_plus(self.matrices, self.lambdas, self.thetaH, self.thetaL,
+                     num_iterations=self.config["num_iterations"],
+                   convergence_criteria=self.config['stop_criterion'])
+        self.alpha, self.i = r.em()
 #%%
 
 @click.command()
@@ -139,24 +166,21 @@ def main(**kwargs):
         model=EpistatePlus
 
     em_model = model(config)
-    em_model.run_model()
+    if config["from_npy"]:
+        em_model.run_from_npy()
+    else:
+        em_model.run_model()
 
 if __name__ == '__main__':
     main()
 
 #%%
 
-# config = {"epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_6_rep9_mixture.epiread.gz"],
-#           "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_atlas_over_tims.txt",
-#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_processed_tims.txt",
-#           "cpg_coordinates":  "/Users/ireneu/PycharmProjects/in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#            "outfile":"sample_output.something",
-#             "epiformat" : "old_epiread",
-#           "bedfile":True,
-#           "header":True,
-#           "max_iterations":1000,
-#           "random_restarts":1,
-#           "stop_criterion":0.001
-#           }
-# em_model = CelfiePlus(config)
-# em_model.run_model()
+# config = {'simulator': 'random', 't': 4, 'coverage': 10, 'm_per_region': 5, 'regions_per_t': 12, 'num_iterations': 1000,
+#           'atlas_coverage': 1000, 'random_restarts': 1, 'true_alpha': '[0.5,0.25,0.1,0.05]', "stop_criterion":0.001,
+#           'theta_high': np.nan, 'theta_low': np.nan, 'lambda_high': np.nan, 'lambda_low': np.nan,
+#           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_data.npy",
+#           "metadata_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_metadata_epistate.npy",
+#           "outfile":None}
+# r = EpistatePlus(config)
+# r.run_from_npy()
