@@ -17,8 +17,9 @@ class CelfiePlus:
         :param convergence_criteria: stopping criteria for em
         '''
         self.x = self.filter_empty_rows(mixtures)
-        # self.x = mixtures
         self.beta = [self.add_pseudocounts(x) for x in beta]
+        self.filter_no_coverage()
+
         self.num_iterations = num_iterations
         self.convergence_criteria = convergence_criteria
         self.x_c_m = [(x == METHYLATED) for x in self.x]
@@ -33,6 +34,11 @@ class CelfiePlus:
         arr[arr==0] += pseudocount
         arr[arr==1] -= pseudocount
         return arr
+
+    def filter_no_coverage(self):
+        has_cov = np.array([any(~(x == NOVAL)) for x in self.x])
+        self.beta = list(np.array(self.beta)[has_cov])
+        self.x = list(np.array(self.x)[has_cov])
 
     def filter_empty_rows(self, reads):
         filtered = []

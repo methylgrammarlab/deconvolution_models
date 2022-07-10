@@ -115,7 +115,6 @@ class CelfiePlus(EMmodel):
         self.atlas_matrices = np.load(self.config["metadata_file"], allow_pickle=True)
 
     def deconvolute(self):
-        assert [x.shape[1] for x in self.matrices] == [x.shape[1] for x in self.atlas_matrices]
         r = celfie_plus(self.matrices, self.atlas_matrices, num_iterations=self.config['num_iterations'],
                         convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.two_step()
@@ -180,8 +179,8 @@ if __name__ == '__main__':
 #           'theta_high': 0.76, 'theta_low': 0.24, 'lambda_high': 1, 'lambda_low': 0,
 #           "models":["celfie-plus", "celfie", "epistate-plus","epistate"],
 #           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/26_rep2_data.npy",
-#           "metadata_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/26_rep2_metadata_epistate.npy",
+#           "metadata_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/26_rep2_metadata_celfie-plus.npy",
 #
 #           "outfile":None}
-# r = Epistate(config)
+# r = CelfiePlus(config)
 # r.run_from_npy()
