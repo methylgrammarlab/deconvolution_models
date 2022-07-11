@@ -36,7 +36,7 @@ class CelfiePlus:
         return arr
 
     def filter_no_coverage(self):
-        has_cov = np.array([any(~(x == NOVAL)) for x in self.x])
+        has_cov = np.array([(~(x == NOVAL)).any() for x in self.x])
         self.beta = list(np.array(self.beta)[has_cov])
         self.x = list(np.array(self.x)[has_cov])
 

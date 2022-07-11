@@ -111,7 +111,7 @@ class CelfiePlus(EMmodel):
         self.atlas_matrices = reader.meth_cov_to_beta_matrices()
 
     def load_npy(self):
-        self.matrices = np.load(self.config["data_file"], allow_pickle=True)
+        self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
         self.atlas_matrices = np.load(self.config["metadata_file"], allow_pickle=True)
 
     def deconvolute(self):
@@ -165,21 +165,17 @@ def main(**kwargs):
         model=EpistatePlus
 
     em_model = model(config)
-    if config["from_npy"]:
-        em_model.run_from_npy()
-    else:
-        em_model.run_model()
+    em_model.run_model()
 
 if __name__ == '__main__':
     main()
 
 #%%
-# config = {'simulator': 'epistate', 't': 25, 'coverage': 10, 'm_per_region': 6, 'regions_per_t': 40, 'num_iterations': 1000,
+# config = {'simulator': 'epistate', 't': 25, 'coverage': 4, 'm_per_region': 5, 'regions_per_t': 16, 'num_iterations': 1000,
 #           'atlas_coverage': 1000, 'random_restarts': 1, "stop_criterion":0.001,
-#           'theta_high': 0.76, 'theta_low': 0.24, 'lambda_high': 1, 'lambda_low': 0,
 #           "models":["celfie-plus", "celfie", "epistate-plus","epistate"],
-#           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/26_rep2_data.npy",
-#           "metadata_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/26_rep2_metadata_celfie-plus.npy",
+#           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/resources/4_rep2_data.npy",
+#           "metadata_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/resources/4_rep2_metadata_celfie-plus.npy",
 #
 #           "outfile":None}
 # r = CelfiePlus(config)

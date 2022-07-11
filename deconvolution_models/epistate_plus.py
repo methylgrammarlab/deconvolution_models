@@ -21,7 +21,7 @@ class READMeth:
         :param convergence_criteria: stopping criteria for em
         '''
         self.x = mixtures
-        self.x_c_v = [any(~(x == NOVAL)) for x in self.x]
+        self.x_c_v = [(~(x == NOVAL)).any() for x in self.x]
         self.Lt = self.add_pseudocounts(lambda_t)
         self.thetaH = theta_high
         self.thetaL = theta_low
