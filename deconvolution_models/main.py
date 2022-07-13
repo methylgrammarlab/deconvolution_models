@@ -153,7 +153,8 @@ class EpistatePlus(Epistate):
 @click.version_option()
 def main(**kwargs):
     """deconvolute epiread file using atlas"""
-    config = json.load(kwargs["json"])
+    with open(kwargs["json"], "r") as jconfig:
+        config = json.load(jconfig)
     config.update(kwargs)
     if config["model"]=='celfie':
         model=Celfie
