@@ -151,6 +151,7 @@ class EpistatePlus(Epistate):
               type=click.Choice(['celfie', 'celfie-plus', 'epistate', 'epistate-plus'], case_sensitive=False))
 @click.option('-j', '--json', help='run from json config file')
 @click.version_option()
+@click.pass_context
 def main(ctx, **kwargs):
     """deconvolute epiread file using atlas"""
     with open(kwargs["json"], "r") as jconfig:
