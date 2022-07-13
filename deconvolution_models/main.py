@@ -73,6 +73,7 @@ class Celfie(EMmodel):
     def read_atlas(self):
         reader = AtlasReader(self.config)
         self.y, self.y_depths = reader.meth_cov_to_sum()
+        self.y, self.y_depths = self.y.T, self.y_depths.T
 
     def load_npy(self):
         self.matrices = np.load(self.config["data_file"], allow_pickle=True)
@@ -182,5 +183,5 @@ if __name__ == '__main__':
 #           "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_atlas_over_regions.txt","stop_criterion":0.001,
 #           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_tims.txt", "epiformat":"old_epiread"}
 #
-# r = CelfiePlus(config)
+# r = Celfie(config)
 # r.run_model()
