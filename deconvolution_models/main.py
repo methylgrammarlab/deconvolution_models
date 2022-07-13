@@ -151,11 +151,13 @@ class EpistatePlus(Epistate):
               type=click.Choice(['celfie', 'celfie-plus', 'epistate', 'epistate-plus'], case_sensitive=False))
 @click.option('-j', '--json', help='run from json config file')
 @click.version_option()
-def main(**kwargs):
+def main(ctx, **kwargs):
     """deconvolute epiread file using atlas"""
     with open(kwargs["json"], "r") as jconfig:
         config = json.load(jconfig)
     config.update(kwargs)
+    config.update(dict([item.strip('--').split('=') for item in ctx.args]))
+
     if config["model"]=='celfie':
         model=Celfie
     elif config["model"]=='celfie-plus':
