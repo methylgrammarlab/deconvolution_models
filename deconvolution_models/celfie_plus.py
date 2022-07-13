@@ -3,6 +3,7 @@ import numpy as np
 import sys
 sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 from epiread_tools.naming_conventions import *
+from itertools import compress
 
 class CelfiePlus:
     '''
@@ -37,7 +38,7 @@ class CelfiePlus:
 
     def filter_no_coverage(self):
         has_cov = np.array([(~(x == NOVAL)).any() for x in self.x])
-        self.beta = list(np.array(self.beta)[has_cov])
+        self.beta = list(compress(self.beta, has_cov))
         self.x = list(np.array(self.x)[has_cov])
 
     def filter_empty_rows(self, reads):

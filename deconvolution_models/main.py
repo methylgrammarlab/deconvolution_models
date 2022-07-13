@@ -172,12 +172,12 @@ if __name__ == '__main__':
     main()
 
 #%%
-# config = {'simulator': 'epistate', 't': 25, 'coverage': 4, 'm_per_region': 5, 'regions_per_t': 16, 'num_iterations': 1000,
-#           'atlas_coverage': 1000, 'random_restarts': 1, "stop_criterion":0.001,
-#           "models":["celfie-plus", "celfie", "epistate-plus","epistate"],
-#           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/resources/4_rep2_data.npy",
-#           "metadata_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/resources/4_rep2_metadata_celfie-plus.npy",
+
+# config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
+#           "depth": 8.0, "num_iterations": 1000, "random_restarts": 1,
+#           "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_6_rep9_mixture.epiread.gz"],
+#           "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_atlas_over_regions.txt","stop_criterion":0.001,
+#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_tims.txt", "epiformat":"old_epiread"}
 #
-#           "outfile":None}
 # r = CelfiePlus(config)
-# r.run_from_npy()
+# r.run_model()
