@@ -146,7 +146,7 @@ class EpistatePlus(Epistate):
         self.alpha, self.i = r.em()
 #%%
 
-@click.command()
+@click.command(ignore_unknown_options=True, allow_extra_args=True)
 @click.option('--model',
               type=click.Choice(['celfie', 'celfie-plus', 'epistate', 'epistate-plus'], case_sensitive=False))
 @click.option('-j', '--json', help='run from json config file')
