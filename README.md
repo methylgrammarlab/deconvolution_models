@@ -18,3 +18,7 @@ to deconvolute:
 ```
 deconvolution -j <config.json>
 ```
+you may override any param via the command line 
+```
+deconvolution --model <model> -j <config.json> outfile=<output_filepath>
+```

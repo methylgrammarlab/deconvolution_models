@@ -10,7 +10,7 @@ class CelfiePlus:
     Read-based EM Algorithm for Deconvolution of Methylation sequencing
     '''
 
-    def __init__(self, mixtures, beta, num_iterations=50, convergence_criteria=0.001, alpha=None):
+    def __init__(self, mixtures, y, y_depths, num_iterations=50, convergence_criteria=0.001, alpha=None):
         '''
         :param mixtures: data for deconvolution. c reads by m cpg sites
         :param beta: methylation probability for reference atlas
@@ -18,6 +18,8 @@ class CelfiePlus:
         :param convergence_criteria: stopping criteria for em
         '''
         self.x = self.filter_empty_rows(mixtures)
+        self.y, self.y_depths = y, y_depths
+        beta = [self.y[i]/self.y_depths[i] for i in range(len(self.y))]
         self.beta = [self.add_pseudocounts(x) for x in beta]
         self.filter_no_coverage()
 
@@ -39,6 +41,9 @@ class CelfiePlus:
     def filter_no_coverage(self):
         has_cov = np.array([(~(x == NOVAL)).any() for x in self.x])
         self.beta = list(compress(self.beta, has_cov))
+        self.y = list(compress(self.y, has_cov))
+        self.y_depths = list(compress(self.y_depths, has_cov))
+
         self.x = list(np.array(self.x)[has_cov])
 
     def filter_empty_rows(self, reads):
@@ -72,7 +77,14 @@ class CelfiePlus:
         '''
         all_z = np.hstack(z)
         new_alpha = np.sum(all_z, axis=1) / self.c
+        # new_alpha  = np.bincount(np.argmax(all_z, axis = 0), minlength=self.t).astype(float) #binarize
         new_alpha /= np.sum(new_alpha)
+
+        new_beta = []
+        for i in range(len(self.beta)):
+            new_beta.append(np.divide(self.y[i] + (self.x_c_m[i][np.newaxis,:,:]*z[i][:,:,np.newaxis]).sum(axis=1),
+                            self.y_depths[i] + (self.x_c_v[i][np.newaxis,:,:]*z[i][:,:,np.newaxis]).sum(axis=1)))
+        self.beta = [self.add_pseudocounts(x) for x in new_beta]
         return new_alpha
 
     def test_convergence(self, new_alpha):
@@ -97,7 +109,8 @@ class CelfiePlus:
         perform EM for a given number of iterations
         :return: cell type proportions, log-likelihood
         '''
-        self.init_alpha()
+        # self.init_alpha()
+        self.alpha = np.array([0.01,0.99])
 
         for i in range(self.num_iterations):
             z = self.simplified_expectation(self.alpha)

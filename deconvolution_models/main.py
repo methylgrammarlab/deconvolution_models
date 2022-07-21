@@ -109,14 +109,15 @@ class CelfiePlus(EMmodel):
 
     def read_atlas(self):
         reader = AtlasReader(self.config)
-        self.atlas_matrices = reader.meth_cov_to_beta_matrices()
+        self.y, self.y_depths = reader.meth_cov_to_meth_cov()
 
-    def load_npy(self):
+
+    def load_npy(self): #broken
         self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
         self.atlas_matrices = np.load(self.config["metadata_file"], allow_pickle=True)
 
     def deconvolute(self):
-        r = celfie_plus(self.matrices, self.atlas_matrices, num_iterations=self.config['num_iterations'],
+        r = celfie_plus(self.matrices, self.y, self.y_depths, num_iterations=self.config['num_iterations'],
                         convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.two_step()
 
@@ -176,12 +177,14 @@ if __name__ == '__main__':
     main()
 
 #%%
-
-# config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#           "depth": 8.0, "num_iterations": 1000, "random_restarts": 1,
-#           "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_6_rep9_mixture.epiread.gz"],
-#           "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_atlas_over_regions.txt","stop_criterion":0.001,
-#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_tims.txt", "epiformat":"old_epiread"}
 #
-# r = Celfie(config)
+# config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
+#           "depth": 30, "num_iterations": 1000, "random_restarts": 1,
+#           "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_5_rep9_mixture.epiread.gz"],
+#           "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_atlas_over_regions.txt","stop_criterion":0.0001,
+#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/netanel_regions.txt", "epiformat":"old_epiread"}
+#
+# r = CelfiePlus(config)
 # r.run_model()
+
+
