@@ -67,20 +67,19 @@ class Celfie(EMmodel):
         reader = self.reader(self.config)
         self.interval_order, self.matrices, self.cpgs = reader.get_matrices_for_intervals()
         self.methylation, self.coverage = calc_methylated(self.matrices), calc_coverage(self.matrices)
-        self.x, self.x_depths = np.array([np.sum(x) for x in self.methylation]),\
-                                np.array([np.sum(x) for x in self.coverage])
+        self.x, self.x_depths = np.hstack(self.methylation), np.hstack(self.coverage) #no summing
 
     def read_atlas(self):
         reader = AtlasReader(self.config)
-        self.y, self.y_depths = reader.meth_cov_to_sum()
+        self.y, self.y_depths = reader.meth_cov_to_meth_cov() #no summing
         self.y, self.y_depths = self.y.T, self.y_depths.T
 
-    def load_npy(self):
+
+    def load_npy(self):#no summing
         self.matrices = np.load(self.config["data_file"], allow_pickle=True)
         self.y, self.y_depths = np.load(self.config["metadata_file"], allow_pickle=True)
         self.methylation, self.coverage = calc_methylated(self.matrices), calc_coverage(self.matrices)
-        self.x, self.x_depths = np.array([np.sum(x) for x in self.methylation]),\
-                                np.array([np.sum(x) for x in self.coverage])
+        self.x, self.x_depths = np.hstack(self.methylation), np.hstack(self.coverage)
 
     def deconvolute(self):
         restarts = []
@@ -185,7 +184,7 @@ if __name__ == '__main__':
 #           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/7_rep9_data.npy",
 #           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/7_rep9_metadata_celfie-plus.npy"}
 #
-# r = CelfiePlus(config)
+# r = Celfie(config)
 # r.run_from_npy()
 #
 # true_alpha = np.array([0.00307692, 0.00615385, 0.00923077, 0.01230769, 0.01538462,
