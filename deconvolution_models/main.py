@@ -171,21 +171,21 @@ def main(ctx, **kwargs):
     em_model = model(config)
     em_model.run_model()
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
 
 #%%
-
-config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-          "depth": 810.0, "num_iterations": 1000, "random_restarts": 1,
-          "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_6_rep9_mixture.epiread.gz"],
-          "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_atlas_over_regions.txt","stop_criterion":0.001,
-          "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_tims.txt", "epiformat":"old_epiread",
-          "data_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/6_rep0_data.npy",
-          "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/6_rep0_metadata_celfie.npy"}
-
-r = Celfie(config)
-r.run_from_npy()
+#
+# config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
+#           "depth": 810.0, "num_iterations": 1000, "random_restarts": 1,
+#           "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_6_rep9_mixture.epiread.gz"],
+#           "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_atlas_over_regions.txt","stop_criterion":0.001,
+#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_tims.txt", "epiformat":"old_epiread",
+#           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/6_rep0_data.npy",
+#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/6_rep0_metadata_celfie.npy"}
+#
+# r = Celfie(config)
+# r.run_from_npy()
 #
 # true_alpha = np.array([0.00307692, 0.00615385, 0.00923077, 0.01230769, 0.01538462,
 #        0.01846154, 0.02153846, 0.02461538, 0.02769231, 0.03076923,
