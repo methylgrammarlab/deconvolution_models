@@ -117,7 +117,7 @@ class CelfiePlus(EMmodel):
     def deconvolute(self):
         r = celfie_plus(self.matrices, self.atlas_matrices, num_iterations=self.config['num_iterations'],
                         convergence_criteria=self.config['stop_criterion'])
-        self.alpha, self.i = r.two_step()
+        self.alpha, self.i, self.q = r.two_step() ###
 
 class Epistate(CelfiePlus): #TODO: load lambdas and thetas from file
     def __init__(self, *args, **kwargs):
@@ -184,7 +184,7 @@ if __name__ == '__main__':
 #           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/6_rep0_data.npy",
 #           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/6_rep0_metadata_celfie.npy"}
 #
-# r = Celfie(config)
+# r = CelfiePlus(config)
 # r.run_model()
 
 # true_alpha = np.array([0.00307692, 0.00615385, 0.00923077, 0.01230769, 0.01538462,
