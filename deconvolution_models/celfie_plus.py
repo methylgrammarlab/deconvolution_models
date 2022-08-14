@@ -22,7 +22,8 @@ class CelfiePlus:
         self.x = self.filter_empty_rows(mixtures)
         self.beta = [self.add_pseudocounts(x) for x in beta]
         self.filter_no_coverage()
-
+        # self.x = [self.x[0]]
+        # self.beta = [self.beta[0]]
         self.num_iterations = num_iterations
         self.convergence_criteria = convergence_criteria
         self.x_c_m = [(x == METHYLATED) for x in self.x]
@@ -54,7 +55,10 @@ class CelfiePlus:
         return arr
 
     def filter_no_coverage(self):
-        has_cov = np.array([(~(x == NOVAL)).any() for x in self.x])
+        ref_cov = [~np.isnan(a).all(axis=0) for a in self.beta] #no data in ref, remove
+        self.beta =[self.beta[i][:,ref_cov[i]] for i in range(len(self.x))]
+        self.x = [self.x[i][:,ref_cov[i]] for i in range(len(self.x))]
+        has_cov = np.array([(~(x == NOVAL)).any() for x in self.x]) #empty regions, remove
         self.beta = list(compress(self.beta, has_cov))
         self.x = list(np.array(self.x)[has_cov])
 
@@ -85,6 +89,20 @@ class CelfiePlus:
             z.append(np.exp(log_z))
         return z
 
+    def simplified_expectation(self, alpha):
+        z = []
+        for window in range(len(self.x)):
+            beta_tm = self.beta[window]
+            a = self.x_c_m[window][np.newaxis, :, :] * beta_tm[:,np.newaxis, :]
+            b = self.x_c_u[window][np.newaxis, :, :] * (1 - beta_tm)[:,np.newaxis, :]
+            vals = np.nan_to_num(a+b, nan=1)
+            z_window = np.prod(vals, axis=2, where=self.x_c_v[window]) #only where data
+            z_window *= alpha[:,np.newaxis]
+            z_window /= np.sum(z_window, axis=0)
+            z.append(z_window)
+        return z
+
+
     def maximization(self, z):
         '''
         argmax value of cel type proportions
@@ -92,7 +110,7 @@ class CelfiePlus:
         :return: alpha
         '''
         all_z = np.hstack(z)
-        new_alpha = np.sum(all_z, axis=1) / self.c
+        new_alpha = np.sum(all_z, axis=1)
         new_alpha /= np.sum(new_alpha)
         return new_alpha
 
@@ -114,8 +132,10 @@ class CelfiePlus:
         q = []
         for i in range(self.num_iterations):
             z = self.log_expectation(self.alpha)
+            # z = self.simplified_expectation(self.alpha)
+            # assert all([np.isclose(z[i], new_z[i]).all() for i in range(len(z))])
+            q.append(self.q_function(z, self.alpha))
             new_alpha = self.maximization(z)
-            q.append(self.q_function(z, new_alpha))
             if i and self.test_convergence(new_alpha):
                 break
 
