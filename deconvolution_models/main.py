@@ -79,8 +79,9 @@ class Celfie(EMmodel):
         self.matrices = np.load(self.config["data_file"], allow_pickle=True)
         self.y, self.y_depths = np.load(self.config["metadata_file"], allow_pickle=True)
         self.methylation, self.coverage = calc_methylated(self.matrices), calc_coverage(self.matrices)
-        self.x, self.x_depths = np.array([np.sum(x) for x in self.methylation]),\
-                                np.array([np.sum(x) for x in self.coverage])
+        # self.x, self.x_depths = np.array([np.sum(x) for x in self.methylation]),\
+        #                         np.array([np.sum(x) for x in self.coverage])
+        self.x, self.x_depths = np.hstack(self.methylation),np.hstack(self.coverage)
 
     def deconvolute(self):
         restarts = []
@@ -115,6 +116,9 @@ class CelfiePlus(EMmodel):
     def load_npy(self): #broken
         self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
         self.atlas_matrices = np.load(self.config["metadata_file"], allow_pickle=True)
+        self.y = [x*100 for x in self.atlas_matrices]
+        self.y_depths = [np.ones(x.shape) for x in self.y]
+        [x.fill(100) for x in self.y_depths]
 
     def deconvolute(self):
         r = celfie_plus(self.matrices, self.y, self.y_depths, num_iterations=self.config['num_iterations'],
@@ -173,18 +177,21 @@ def main(ctx, **kwargs):
     em_model = model(config)
     em_model.run_model()
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
 #%%
 #
-# config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#           "depth": 30, "num_iterations": 1000, "random_restarts": 1,
-#           "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_5_rep9_mixture.epiread.gz"],
-#           "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_atlas_over_regions.txt","stop_criterion":0.0001,
-#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/netanel_regions.txt", "epiformat":"old_epiread"}
-#
-# r = CelfiePlus(config)
-# r.run_model()
+config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
+          "depth": 30, "num_iterations": 1000, "random_restarts": 1,
+          # "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_5_rep9_mixture.epiread.gz"],
+          # "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_atlas_over_regions.txt",
+          "stop_criterion":0.0001,
+          "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/netanel_regions.txt", "epiformat":"old_epiread",
+          "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/test_rep0_data.npy",
+"metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/test_rep0_metadata_celfie.npy"}
+
+r = Celfie(config)
+r.run_from_npy()
 
 
