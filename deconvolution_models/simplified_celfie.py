@@ -22,8 +22,8 @@ class CelfiePlus:
         self.x = self.filter_empty_rows(mixtures)
         self.beta = [self.add_pseudocounts(x) for x in beta]
         self.filter_no_coverage()
-        self.x = [self.x[0]]
-        self.beta = [self.beta[0]]
+        # self.x = [self.x[0]]
+        # self.beta = [self.beta[0]]
         self.num_iterations = num_iterations
         self.convergence_criteria = convergence_criteria
         self.x_c_m = [(x == METHYLATED) for x in self.x]
@@ -36,27 +36,6 @@ class CelfiePlus:
 
         self.log_beta = [np.log(x) for x in self.beta]
         self.log_one_minus_beta = [np.log(1-x) for x in self.beta]
-        self.term1 = self.calc_term1()
-
-    def calc_term1(self):
-        t1 = []
-        for window in range(len(self.x)):
-            beta_tm = self.beta[window]
-            x_c_m =  self.x_c_m[window].astype(int)
-            x_c_u = self.x_c_u[window].astype(int)
-            T, M = beta_tm.shape
-            C = x_c_u.shape[0]
-            t_window = np.zeros((T, C))
-            for t in range(T):
-                for c in range(C):
-                    m_prod = 1
-                    for m in range(M):
-                        m_i = (beta_tm[t,m]**x_c_m[c,m])*((1-beta_tm[t,m])**x_c_u[c,m])
-                        if not np.isnan(m_i):
-                            m_prod *= m_i
-                    t_window[t, c] = m_prod
-            t1.append(np.log(t_window))
-        return t1
 
 
     def add_pseudocounts(self, arr):
@@ -86,34 +65,16 @@ class CelfiePlus:
         ll = 0
         for window in range(len(self.x)):
             p_tilde = z[window]
-            t1 = self.term1[window]
-            T, C = p_tilde.shape
+            beta_tm = self.beta[window]
+            x_c_m =  self.x_c_m[window].astype(int)
+            x_c_u = self.x_c_u[window].astype(int)
+            T, C, M = p_tilde.shape
             for t in range(T):
                 for c in range(C):
-                    ll += p_tilde[t,c]*t1[t,c]
-                    ll += p_tilde[t,c]*np.log(alpha[t])
+                    for m in range(M):
+                        ll += p_tilde[t,c,m]*(x_c_m[c,m]*np.log(beta_tm[t,m]) + x_c_u[c,m]*np.log(1-beta_tm[t,m]))
+                        ll += p_tilde[t,c,m]*np.log(alpha[t])
         return ll
-
-    def log_likelihood(self, alpha):
-        ll = 0
-        for window in range(len(self.x)):
-            t1 = self.term1[window]
-            T, C = t1.shape
-            for t in range(T):
-                for c in range(C):
-                    ll += t1[t,c]
-                    ll += np.log(alpha[t])
-        return ll
-
-    def log_expectation(self, alpha):
-        z = []
-        for window in range(len(self.x)):
-            T, C = self.term1[window].shape
-            a = np.tile(np.log(alpha), (C, 1)).T + self.term1[window]
-            b = logsumexp(a, axis=0)
-            log_z = a - np.tile(b, (T,1))
-            z.append(np.exp(log_z))
-        return z
 
     def simplified_expectation(self, alpha):
         z = []
@@ -123,16 +84,11 @@ class CelfiePlus:
             x_c_u = self.x_c_u[window].astype(int)
             T, M = beta_tm.shape
             C = x_c_u.shape[0]
-            z_window = np.zeros((T, C))
+            z_window = np.zeros((T, C, M))
             for t in range(T):
                 for c in range(C):
-                    m_prod = 1
                     for m in range(M):
-                        m_i = (beta_tm[t,m]**x_c_m[c,m])*((1-beta_tm[t,m])**x_c_u[c,m])
-                        if not np.isnan(m_i):
-                            m_prod *= m_i
-                    m_prod *= alpha[t]
-                    z_window[t, c] = m_prod
+                        z_window[t,c,m] = alpha[t] * (beta_tm[t,m]**x_c_m[c,m])*((1-beta_tm[t,m])**x_c_u[c,m])
             z_window /= np.sum(z_window, axis=0)
             z.append(z_window)
         return z
@@ -145,7 +101,7 @@ class CelfiePlus:
         :return: alpha
         '''
         all_z = np.hstack(z)
-        new_alpha = np.sum(all_z, axis=1)
+        new_alpha = np.sum(all_z, axis=1).sum(axis=1)
         new_alpha /= np.sum(new_alpha)
         return new_alpha
 
@@ -167,12 +123,11 @@ class CelfiePlus:
         '''
         self.init_alpha()
         q = []
-        alphas= []
         for i in range(self.num_iterations):
             z = self.simplified_expectation(self.alpha)
-            q.append(self.q_function( z, self.alpha))
-            alphas.append(self.alpha)
             new_alpha = self.maximization(z)
+            q.append(self.q_function(z, new_alpha))
+
             if i and self.test_convergence(new_alpha):
                 break
 
@@ -190,13 +145,3 @@ class CelfiePlus:
 # r = CelfiePlus(mixture, beta_tm, num_iterations=1000,
 #                 convergence_criteria=0.001)
 # alpha, i ,q = r.two_step()
-#%%
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# fig, ax = plt.subplots()
-# plt.scatter(np.arange(1, i + 2), q, label="Q function")
-# # plt.scatter(np.arange(1, i + 2), [a[0] for a in alphas], label="t1")
-# # plt.scatter(np.arange(1, i + 2), [a[1] for a in alphas], label="t2")
-# plt.xlabel("iteration")
-# plt.show()
-#
