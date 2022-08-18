@@ -18,61 +18,55 @@ class CelfiePlus:
         :param beta: methylation probability for reference atlas
         :param num_iterations: maximum iterations for em
         :param convergence_criteria: stopping criteria for em
+        :param alpha: override random initialization
         '''
         self.x = self.filter_empty_rows(mixtures)
         self.beta = [self.add_pseudocounts(x) for x in beta]
         self.filter_no_coverage()
-        self.x = [self.x[0]]
-        self.beta = [self.beta[0]]
+
         self.num_iterations = num_iterations
         self.convergence_criteria = convergence_criteria
         self.x_c_m = [(x == METHYLATED) for x in self.x]
         self.x_c_u = [(x == UNMETHYLATED) for x in self.x]
         self.x_c_v = [~(x == NOVAL) for x in self.x]
         self.t = self.beta[0].shape[0]
-        c, m = [arr.shape[0] for arr in self.x], [arr.shape[1] for arr in self.x]
-        self.c, self.m = np.sum(c), np.sum(m)
         self.alpha = alpha
 
         self.log_beta = [np.log(x) for x in self.beta]
         self.log_one_minus_beta = [np.log(1-x) for x in self.beta]
-        self.term1 = self.calc_term1()
+        self.log_term1 = self.calc_term1()
 
     def calc_term1(self):
+        '''
+        since beta is constant, so is the
+        first term of the likelihood
+        :return: log term1
+        '''
         t1 = []
         for window in range(len(self.x)):
-            beta_tm = self.beta[window]
             x_c_m =  self.x_c_m[window].astype(int)
             x_c_u = self.x_c_u[window].astype(int)
-            T, M = beta_tm.shape
-            C = x_c_u.shape[0]
-            t_window = np.zeros((T, C))
-            for t in range(T):
-                for c in range(C):
-                    m_prod = 1
-                    for m in range(M):
-                        m_i = (beta_tm[t,m]**x_c_m[c,m])*((1-beta_tm[t,m])**x_c_u[c,m])
-                        if not np.isnan(m_i):
-                            m_prod *= m_i
-                    t_window[t, c] = m_prod
-            t1.append(np.log(t_window))
+            log_beta = np.nan_to_num(self.log_beta[window].T)
+            log_one_minus_beta = np.nan_to_num(self.log_one_minus_beta[window].T)
+            t1.append((np.matmul(x_c_m, log_beta) + np.matmul(x_c_u, log_one_minus_beta)).T)
         return t1
 
-
     def add_pseudocounts(self, arr):
-        arr[arr==0] += 100*pseudocount
-        arr[arr==1] -= 100*pseudocount
+        '''
+        move slightly away from 1 and 0
+        :param arr: numpy array
+        :return: changes array inplace
+        '''
+        arr[arr==0] += pseudocount
+        arr[arr==1] -= pseudocount
         return arr
 
-    def filter_no_coverage(self):
-        ref_cov = [~np.isnan(a).all(axis=0) for a in self.beta] #no data in ref, remove
-        self.beta =[self.beta[i][:,ref_cov[i]] for i in range(len(self.x))]
-        self.x = [self.x[i][:,ref_cov[i]] for i in range(len(self.x))]
-        has_cov = np.array([(~(x == NOVAL)).any() for x in self.x]) #empty regions, remove
-        self.beta = list(compress(self.beta, has_cov))
-        self.x = list(np.array(self.x)[has_cov])
-
     def filter_empty_rows(self, reads):
+        '''
+        remove mixture rows with no data
+        :param reads: mixture
+        :return: filtered mixture
+        '''
         filtered = []
         for region in reads:
             if region.size > 0:
@@ -82,66 +76,50 @@ class CelfiePlus:
                 filtered.append(region)
         return filtered
 
-    def q_function(self, z, alpha):
-        ll = 0
-        for window in range(len(self.x)):
-            p_tilde = z[window]
-            t1 = self.term1[window]
-            T, C = p_tilde.shape
-            for t in range(T):
-                for c in range(C):
-                    ll += p_tilde[t,c]*t1[t,c]
-                    ll += p_tilde[t,c]*np.log(alpha[t])
-        return ll
+    def filter_no_coverage(self):
+        '''
+        filter cpg sites with no information in atlas
+        :return:
+        '''
+        ref_cov = [~np.isnan(a).all(axis=0) for a in self.beta] #no data in ref, remove
+        self.beta =[self.beta[i][:,ref_cov[i]] for i in range(len(self.x))]
+        self.x = [self.x[i][:,ref_cov[i]] for i in range(len(self.x))]
+        has_cov = np.array([(~(x == NOVAL)).any() for x in self.x]) #empty regions, remove
+        self.beta = list(compress(self.beta, has_cov))
+        self.x = list(np.array(self.x)[has_cov])
 
     def log_likelihood(self, alpha):
+        '''
+        logP(x|alpha, beta)
+        :param alpha: cell type proportions
+        :return: log likelihood
+        '''
         ll = 0
         for window in range(len(self.x)):
-            t1 = self.term1[window]
-            T, C = t1.shape
-            for t in range(T):
-                for c in range(C):
-                    ll += t1[t,c]
-                    ll += np.log(alpha[t])
+            log_t1 = self.log_term1[window]
+            T, C = log_t1.shape
+            ll += np.sum(logsumexp(np.tile(np.log(alpha), (C, 1)).T + log_t1, axis=0))
         return ll
 
     def log_expectation(self, alpha):
+        '''
+        P(z=1|x, alpha_i)
+        :param alpha: cell type proportions
+        :return: probability of z
+        '''
         z = []
         for window in range(len(self.x)):
-            T, C = self.term1[window].shape
-            a = np.tile(np.log(alpha), (C, 1)).T + self.term1[window]
+            T, C = self.log_term1[window].shape
+            a = np.tile(np.log(alpha), (C, 1)).T + self.log_term1[window]
             b = logsumexp(a, axis=0)
             log_z = a - np.tile(b, (T,1))
             z.append(np.exp(log_z))
         return z
 
-    def simplified_expectation(self, alpha):
-        z = []
-        for window in range(len(self.x)):
-            beta_tm = self.beta[window]
-            x_c_m =  self.x_c_m[window].astype(int)
-            x_c_u = self.x_c_u[window].astype(int)
-            T, M = beta_tm.shape
-            C = x_c_u.shape[0]
-            z_window = np.zeros((T, C))
-            for t in range(T):
-                for c in range(C):
-                    m_prod = 1
-                    for m in range(M):
-                        m_i = (beta_tm[t,m]**x_c_m[c,m])*((1-beta_tm[t,m])**x_c_u[c,m])
-                        if not np.isnan(m_i):
-                            m_prod *= m_i
-                    m_prod *= alpha[t]
-                    z_window[t, c] = m_prod
-            z_window /= np.sum(z_window, axis=0)
-            z.append(z_window)
-        return z
-
-
     def maximization(self, z):
         '''
-        argmax value of cel type proportions
-        :param z: cell type indicator
+        argmax value of cell type proportions
+        :param z: probability of cell type indicator
         :return: alpha
         '''
         all_z = np.hstack(z)
@@ -154,24 +132,19 @@ class CelfiePlus:
         return alpha_diff < self.convergence_criteria
 
     def init_alpha(self):
-        # alpha = np.random.uniform(size=(self.t))
-        # alpha /= np.sum(alpha)
-        # self.alpha = alpha
-        # self.alpha = np.array([0.8, 0.2])
-        self.alpha = np.array([0.6784, 0.3216])
+        alpha = np.random.uniform(size=(self.t))
+        alpha /= np.sum(alpha)
+        self.alpha = alpha
 
     def two_step(self):
         '''
         perform EM for a given number of iterations
         :return: cell type proportions, log-likelihood
         '''
-        self.init_alpha()
-        q = []
-        alphas= []
+        if not self.alpha:
+            self.init_alpha()
         for i in range(self.num_iterations):
-            z = self.simplified_expectation(self.alpha)
-            q.append(self.q_function( z, self.alpha))
-            alphas.append(self.alpha)
+            z = self.log_expectation(self.alpha)
             new_alpha = self.maximization(z)
             if i and self.test_convergence(new_alpha):
                 break
@@ -180,23 +153,7 @@ class CelfiePlus:
                 self.alpha = new_alpha
 
 
-        return self.alpha, i, q
-#%%
-# beta_tm = [np.zeros((2,2)), np.ones((2,3))]
-# beta_tm[0][0,:], beta_tm[1][0,:] = 1,0
-# mixture = [np.zeros((100,2)),np.zeros((100,3))]
-# [x.fill(UNMETHYLATED) for x in mixture]
-# mixture[0][:20,:], mixture[1][:80,:] = METHYLATED, METHYLATED
-# r = CelfiePlus(mixture, beta_tm, num_iterations=1000,
-#                 convergence_criteria=0.001)
-# alpha, i ,q = r.two_step()
-#%%
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# fig, ax = plt.subplots()
-# plt.scatter(np.arange(1, i + 2), q, label="Q function")
-# # plt.scatter(np.arange(1, i + 2), [a[0] for a in alphas], label="t1")
-# # plt.scatter(np.arange(1, i + 2), [a[1] for a in alphas], label="t2")
-# plt.xlabel("iteration")
-# plt.show()
-#
+        return self.alpha, i
+
+    def get_ll(self):
+        return self.log_likelihood(self.alpha)
