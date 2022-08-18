@@ -4,6 +4,7 @@ import sys
 sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 from epiread_tools.naming_conventions import *
 from itertools import compress
+from scipy.special import logsumexp
 
 class CelfiePlus:
     '''
@@ -64,6 +65,27 @@ class CelfiePlus:
             z.append(z_window)
         return z
 
+    def log_likelihood(self, alpha):
+        ll = 0
+        for window in range(len(self.x)):
+            t1 = self.term1[window]
+            T, C = t1.shape
+            for t in range(T):
+                for c in range(C):
+                    ll += t1[t,c]
+                    ll += np.log(alpha[t])
+        return ll
+
+    def log_expectation(self, alpha):
+        z = []
+        for window in range(len(self.x)):
+            T, C = self.term1[window].shape
+            a = np.tile(np.log(alpha), (C, 1)).T + self.term1[window]
+            b = logsumexp(a, axis=0)
+            log_z = a - np.tile(b, (T,1))
+            z.append(np.exp(log_z))
+        return z
+
     def maximization(self, z):
         '''
         argmax value of cel type proportions
@@ -97,7 +119,8 @@ class CelfiePlus:
         perform EM for a given number of iterations
         :return: cell type proportions, log-likelihood
         '''
-        self.init_alpha()
+        if not self.alpha: #init randomly
+            self.init_alpha()
 
         for i in range(self.num_iterations):
             z = self.simplified_expectation(self.alpha)
