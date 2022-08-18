@@ -57,8 +57,8 @@ class CelfiePlus:
         :param arr: numpy array
         :return: changes array inplace
         '''
-        arr[arr==0] += pseudocount
-        arr[arr==1] -= pseudocount
+        arr[arr==0] += 10*pseudocount
+        arr[arr==1] -= 10*pseudocount
         return arr
 
     def filter_empty_rows(self, reads):
@@ -143,7 +143,9 @@ class CelfiePlus:
         '''
         if not self.alpha:
             self.init_alpha()
+        ll = []
         for i in range(self.num_iterations):
+            ll.append(self.get_ll())
             z = self.log_expectation(self.alpha)
             new_alpha = self.maximization(z)
             if i and self.test_convergence(new_alpha):
