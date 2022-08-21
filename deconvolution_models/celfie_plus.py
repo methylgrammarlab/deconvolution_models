@@ -20,9 +20,10 @@ class CelfiePlus:
         :param convergence_criteria: stopping criteria for em
         '''
         self.x = self.filter_empty_rows(mixtures)
-        self.y, self.y_depths = self.add_pseudocounts(y, y_depths)
-        self.x,  self.y, self.y_depths  = [self.x[150]],[self.y[150]],[self.y_depths[150]]
+        self.y, self.y_depths = y, y_depths
+        # self.x,  self.y, self.y_depths  = [self.x[150]],[self.y[150]],[self.y_depths[150]]
         self.filter_no_coverage()
+        self.y, self.y_depths = self.add_pseudocounts(self.y, self.y_depths)
         self.beta = [self.y[i]/self.y_depths[i] for i in range(len(self.y))]
 
         self.num_iterations = num_iterations
@@ -35,9 +36,11 @@ class CelfiePlus:
 
     def filter_no_coverage(self):
         ref_cov = [self.y_depths[a].sum(axis=0) != NOVAL for a in range(len(self.y_depths))] #no data in ref, remove
-        self.y = [self.y[i][:,ref_cov[i]] for i in range(len(ref_cov))]
-        self.y_depths = [self.y_depths[i][:,ref_cov[i]] for i in range(len(ref_cov))]
-        self.x = [self.x[i][:,ref_cov[i]] for i in range(len(self.x))]
+        refnan = [np.isnan(self.y_depths[a]).all(axis=0) for a in range(len(self.y_depths))]
+        ref_filt = [ref_cov[i] & ~refnan[i] for i in range(len(ref_cov))]
+        self.y = [self.y[i][:,ref_filt[i]] for i in range(len(ref_cov))]
+        self.y_depths = [self.y_depths[i][:,ref_filt[i]] for i in range(len(ref_cov))]
+        self.x = [self.x[i][:,ref_filt[i]] for i in range(len(self.x))]
 
         has_cov = np.array([(~(x == NOVAL)).any() for x in self.x]) #empty regions, remove
         self.y = list(compress(self.y, has_cov))
@@ -60,10 +63,10 @@ class CelfiePlus:
         for i in range(len(a)):
             new_a = a[i].copy()
             new_a_depths = a_depths[i].copy()
-            new_a[new_a==0] += 1
-            new_a_depths[new_a==0] += 2
-            new_a[new_a==new_a_depths] += 1
-            new_a_depths[new_a == new_a_depths] += 2
+            new_a[a[i]==0] += 1
+            new_a_depths[a[i]==0] += 2
+            new_a[a[i]==a_depths[i]] += 1
+            new_a_depths[a[i]==a_depths[i]] += 2
             res.append(new_a)
             res_depths.append(new_a_depths)
         return res, res_depths

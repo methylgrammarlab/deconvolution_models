@@ -183,15 +183,12 @@ def main(ctx, **kwargs):
 #%%
 #
 config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-          "depth": 30, "num_iterations": 1000, "random_restarts": 1,
-          "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_5_rep9_mixture.epiread.gz"],
-          "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_atlas_over_regions.txt",
-          "stop_criterion":0.0001,
-          "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/netanel_regions.txt", "epiformat":"old_epiread",
-          "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/test_rep0_data.npy",
-"metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/test_rep0_metadata_celfie-plus.npy"}
+          "depth": 810.0, "num_iterations": 1000, "random_restarts": 1,
+          "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_1_rep0_mixture.epiread.gz"],
+          "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_atlas_over_regions.txt","stop_criterion":0.001,
+          "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/problem_region.bed", "epiformat":"old_epiread",
+          "data_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/test_rep0_data.npy",
+          "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/test_rep0_metadata_celfie-plus.npy"}
 
 r = CelfiePlus(config)
 r.run_model()
-
-
