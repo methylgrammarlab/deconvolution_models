@@ -160,7 +160,8 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
     # randomly intialize alpha for each iteration
     # alpha = np.random.uniform(size=(x.shape[0], y.shape[0]))
     # alpha /= np.sum(alpha, axis=1)[:, np.newaxis]  # make alpha sum to 1
-    alpha = np.array([0.6784, 0.3216])[np.newaxis,:]
+    alpha = np.array([0.6784, 0.3216])[np.newaxis,:] ###
+    alphas= []
     # begin by checking for instances where there are no counts for y or y_depths
     add_pseudocounts(1, np.nan_to_num(y / y_depths), y, y_depths)
     add_pseudocounts(0, np.nan_to_num(y / y_depths), y, y_depths)
@@ -168,16 +169,10 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
     # intialize gamma to reference values
     gamma = y / y_depths
     i = 0
-    all_l = []
     # perform EM for a given number of iterations
     for i in range(num_iterations):
-
+        alphas.append(alpha)
         p0, p1 = expectation(gamma, alpha)
-        ll = log_likelihood(
-            p0, p1, x_depths, x, y_depths, y, gamma, alpha
-        )
-        print(ll)
-        all_l.append(ll)
         a, g = maximization(p0, p1, x, x_depths, y, y_depths)
 
         # check convergence of alpha and gamma
@@ -202,9 +197,9 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
 # import matplotlib.pyplot as plt
 # import seaborn as sns
 # fig, ax = plt.subplots()
-# plt.scatter(np.arange(1, i + 2), all_l, label="Q function")
-# # plt.scatter(np.arange(1, i + 2), [a[0] for a in alphas], label="t1")
+# # plt.scatter(np.arange(1, i + 2), all_l, label="Q function")
+# plt.scatter(np.arange(1, i + 2), [a[0][1] for a in alphas], label="t1")
 # # plt.scatter(np.arange(1, i + 2), [a[1] for a in alphas], label="t2")
 # plt.xlabel("iteration")
 # plt.show()
-#
+

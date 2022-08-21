@@ -23,7 +23,11 @@ class CelfiePlus:
         self.x = self.filter_empty_rows(mixtures)
         self.beta = [self.add_pseudocounts(x) for x in beta]
         self.filter_no_coverage()
-
+        x = self.x[0].T
+        np.random.seed(123)
+        np.random.shuffle(x)
+        x = x.T
+        self.x =  [x]
         self.num_iterations = num_iterations
         self.convergence_criteria = convergence_criteria
         self.x_c_m = [(x == METHYLATED) for x in self.x]
@@ -57,8 +61,9 @@ class CelfiePlus:
         :param arr: numpy array
         :return: changes array inplace
         '''
-        arr[arr==0] += 10*pseudocount
-        arr[arr==1] -= 10*pseudocount
+        pc = 1e-10
+        arr[arr==0] += pc
+        arr[arr==1] -= pc
         return arr
 
     def filter_empty_rows(self, reads):
@@ -134,7 +139,7 @@ class CelfiePlus:
     def init_alpha(self):
         alpha = np.random.uniform(size=(self.t))
         alpha /= np.sum(alpha)
-        self.alpha = alpha
+        self.alpha = np.array([0.6784, 0.3216]) ###
 
     def two_step(self):
         '''

@@ -180,7 +180,7 @@ config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/Py
           "depth": 810.0, "num_iterations": 1000, "random_restarts": 1,
           "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_1_rep0_mixture.epiread.gz"],
           "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_atlas_over_regions.txt","stop_criterion":0.001,
-          "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/merged_tims.bed", "epiformat":"old_epiread",
+          "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/problem_region.bed", "epiformat":"old_epiread",
           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/test_rep0_data.npy",
           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/debugging/test_rep0_metadata_celfie-plus.npy"}
 
