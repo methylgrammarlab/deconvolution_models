@@ -173,7 +173,7 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
 
         p0, p1 = expectation(gamma, alpha)
         a, g = maximization(p0, p1, x, x_depths, y, y_depths)
-
+        print(y[:10])
         # check convergence of alpha and gamma
         alpha_diff = np.mean(abs(a - alpha)) / np.mean(abs(alpha))
         gamma_diff = np.mean(abs(g - gamma)) / np.mean(abs(gamma))
