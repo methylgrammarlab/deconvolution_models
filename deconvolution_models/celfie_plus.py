@@ -23,6 +23,10 @@ class CelfiePlus:
         self.y, self.y_depths = y, y_depths
         # self.x,  self.y, self.y_depths  = [self.x[150]],[self.y[150]],[self.y_depths[150]]
         self.filter_no_coverage()
+        # x = self.x[0].T
+        # np.random.seed(123)
+        # np.random.shuffle(x)
+        # self.x = [x.T]
         self.y, self.y_depths = self.add_pseudocounts(self.y, self.y_depths)
         self.beta = [self.y[i]/self.y_depths[i] for i in range(len(self.y))]
 
