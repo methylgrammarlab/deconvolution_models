@@ -6,6 +6,22 @@ from epiread_tools.naming_conventions import *
 from itertools import compress
 from scipy.special import logsumexp
 
+def length_one(x):
+    nvals = np.count_nonzero(x)
+    res = np.zeros((nvals, x.shape[1]))
+    row_ind, col_ind = np.where(x>0)
+    for i in range(nvals):
+        res[i,col_ind[i]] = x[row_ind[i], col_ind[i]]
+    return res
+
+def shuffle(x):
+    res = np.zeros(x.shape)
+    row_ind, col_ind = np.where(x>0)
+    new_ind = row_ind.copy()
+    np.random.seed(123)
+    np.random.shuffle(new_ind)
+    res[new_ind, col_ind] = x[row_ind, col_ind]
+    return res
 
 class CelfiePlus:
     '''
@@ -23,11 +39,8 @@ class CelfiePlus:
         self.x = self.filter_empty_rows(mixtures)
         self.beta = [self.add_pseudocounts(x) for x in beta]
         self.filter_no_coverage()
-        x = self.x[0].T
-        np.random.seed(123)
-        np.random.shuffle(x)
-        x = x.T
-        self.x =  [x]
+        # self.x = [length_one(self.x[0])]
+        # self.x = [shuffle(self.x[0])]
         self.num_iterations = num_iterations
         self.convergence_criteria = convergence_criteria
         self.x_c_m = [(x == METHYLATED) for x in self.x]

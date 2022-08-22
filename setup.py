@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name='deconvolution_models',
-    version='0.0.1',
+    version='0.0.2',
     author='Irene Unterman',
     author_email='irene.guberman@mail.huji.ac.il',
     description='Models for WGBS deconvolution',
