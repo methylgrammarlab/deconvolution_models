@@ -152,7 +152,6 @@ class CelfiePlus:
     def init_alpha(self):
         alpha = np.random.uniform(size=(self.t))
         alpha /= np.sum(alpha)
-        self.alpha = np.array([0.6784, 0.3216]) ###
 
     def two_step(self):
         '''

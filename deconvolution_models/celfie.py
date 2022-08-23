@@ -158,10 +158,8 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
     """
 
     # randomly intialize alpha for each iteration
-    # alpha = np.random.uniform(size=(x.shape[0], y.shape[0]))
-    # alpha /= np.sum(alpha, axis=1)[:, np.newaxis]  # make alpha sum to 1
-    alpha = np.array([0.6784, 0.3216])[np.newaxis,:] ###
-    alphas= []
+    alpha = np.random.uniform(size=(x.shape[0], y.shape[0]))
+    alpha /= np.sum(alpha, axis=1)[:, np.newaxis]  # make alpha sum to 1
     # begin by checking for instances where there are no counts for y or y_depths
     add_pseudocounts(1, np.nan_to_num(y / y_depths), y, y_depths)
     add_pseudocounts(0, np.nan_to_num(y / y_depths), y, y_depths)
@@ -171,7 +169,6 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
     i = 0
     # perform EM for a given number of iterations
     for i in range(num_iterations):
-        alphas.append(alpha)
         p0, p1 = expectation(gamma, alpha)
         a, g = maximization(p0, p1, x, x_depths, y, y_depths)
 
