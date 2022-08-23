@@ -152,6 +152,7 @@ class CelfiePlus:
     def init_alpha(self):
         alpha = np.random.uniform(size=(self.t))
         alpha /= np.sum(alpha)
+        self.alpha=alpha
 
     def two_step(self):
         '''
