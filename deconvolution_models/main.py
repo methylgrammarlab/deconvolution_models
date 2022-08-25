@@ -88,7 +88,14 @@ class Celfie(EMmodel):
         self.x, self.x_depths = np.hstack(self.methylation), np.hstack(self.coverage) #might be problematic with missing data
         if self.config["summing"]:
             self.x, self.x_depths = np.array([np.sum(x) for x in self.methylation]), \
-                                    np.array([np.sum(x) for x in self.coverage]) #TODO: debug
+                                    np.array([np.sum(x) for x in self.coverage])
+            shapes = np.array([x.shape[0] for x in self.methylation])
+            shape_indices = np.cumsum(shapes)
+            shape_indices = np.array([0]+list(shape_indices))
+            cumsum_y = np.hstack([np.zeros((self.y.shape[0],1)), np.cumsum(self.y, axis = 1)])
+            cumsum_y_depths = np.hstack([np.zeros((self.y_depths.shape[0],1)), np.cumsum(self.y_depths, axis = 1)])
+            self.y = cumsum_y[:,shape_indices[1:]] - cumsum_y[:,shape_indices[:-1]]
+            self.y_depths = cumsum_y_depths[:,shape_indices[1:]] - cumsum_y_depths[:,shape_indices[:-1]]
 
     def deconvolute(self):
         restarts = []
@@ -206,14 +213,14 @@ if __name__ == '__main__':
 #%%
 #
 # config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#           "depth": 810.0, "num_iterations": 1000, "random_restarts": 1,
+#           "depth": 810.0, "num_iterations": 1000, "random_restarts": 1, "summing":True,
 #           "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_1_rep0_mixture.epiread.gz"],
 #           "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_atlas_over_regions.txt","stop_criterion":0.001,
 #           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/problem_region.bed", "epiformat":"old_epiread",
-#           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep1_data.npy",
-#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep1_metadata_celfie-plus.npy"}
+#           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/test_reatlas/1_rep0_data.npy",
+#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/test_reatlas/1_rep0_metadata_celfie.npy"}
 #
-# r = CelfiePlus(config)
+# r = Celfie(config)
 # r.run_from_npy()
 
 # true_alpha = np.array([0.00307692, 0.00615385, 0.00923077, 0.01230769, 0.01538462,
