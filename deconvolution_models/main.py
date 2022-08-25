@@ -5,7 +5,7 @@ sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 # sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/deconvolution_models")
 from deconvolution_models.celfie import em as celfie
 from deconvolution_models.celfie_plus import CelfiePlus as celfie_plus
-from deconvolution_models.celfie_plus_reatlas import import CelfiePlus as reatlas
+from deconvolution_models.celfie_plus_reatlas import CelfiePlus as reatlas
 from deconvolution_models.epistate import READMeth as epistate
 from deconvolution_models.epistate_plus import READMeth as epistate_plus
 import numpy as np
@@ -143,7 +143,7 @@ class ReAtlas(CelfiePlus):
         self.y, self.y_depths = np.load(self.config["metadata_file"], allow_pickle=True)
 
     def deconvolute(self):
-        r = celfie_plus(self.matrices, self.y, self.y_depths, num_iterations=self.config['num_iterations'],
+        r = reatlas(self.matrices, self.y, self.y_depths, num_iterations=self.config['num_iterations'],
                         convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.two_step()
 
