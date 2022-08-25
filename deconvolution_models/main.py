@@ -69,18 +69,26 @@ class Celfie(EMmodel):
         self.interval_order, self.matrices, self.cpgs = reader.get_matrices_for_intervals()
         self.methylation, self.coverage = calc_methylated(self.matrices), calc_coverage(self.matrices)
         self.x, self.x_depths = np.hstack(self.methylation), np.hstack(self.coverage) #no summing
-
+        if self.config["summing"]:
+            self.x, self.x_depths = np.array([np.sum(x) for x in self.methylation]), \
+                                    np.array([np.sum(x) for x in self.coverage]) #TODO: debug
     def read_atlas(self):
         reader = AtlasReader(self.config)
         self.y, self.y_depths = reader.meth_cov_to_meth_cov() #no summing
-        self.y, self.y_depths = np.hstack(self.y), np.hstack(self.y_depths)
+        if self.config["summing"]:
+            self.y, self.y = np.array([np.sum(x) for x in self.y]), \
+                                    np.array([np.sum(x) for x in self.y_depths]) #TODO: debug
+        else:
+            self.y, self.y_depths = np.hstack(self.y), np.hstack(self.y_depths)
 
-
-    def load_npy(self):#no summing
+    def load_npy(self):
         self.matrices = np.load(self.config["data_file"], allow_pickle=True)
         self.y, self.y_depths = np.load(self.config["metadata_file"], allow_pickle=True)
         self.methylation, self.coverage = calc_methylated(self.matrices), calc_coverage(self.matrices)
         self.x, self.x_depths = np.hstack(self.methylation), np.hstack(self.coverage) #might be problematic with missing data
+        if self.config["summing"]:
+            self.x, self.x_depths = np.array([np.sum(x) for x in self.methylation]), \
+                                    np.array([np.sum(x) for x in self.coverage]) #TODO: debug
 
     def deconvolute(self):
         restarts = []
@@ -124,6 +132,20 @@ class ReAtlas(CelfiePlus):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = "plus-reatlas"
+
+    def read_atlas(self):
+        reader = AtlasReader(self.config)
+        self.y, self.y_depths = reader.meth_cov_to_meth_cov()
+
+
+    def load_npy(self):
+        self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
+        self.y, self.y_depths = np.load(self.config["metadata_file"], allow_pickle=True)
+
+    def deconvolute(self):
+        r = celfie_plus(self.matrices, self.y, self.y_depths, num_iterations=self.config['num_iterations'],
+                        convergence_criteria=self.config['stop_criterion'])
+        self.alpha, self.i = r.two_step()
 
 
 class Epistate(CelfiePlus): #TODO: load lambdas and thetas from file
