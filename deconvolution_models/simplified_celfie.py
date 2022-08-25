@@ -5,7 +5,10 @@ sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 from epiread_tools.naming_conventions import *
 from itertools import compress
 from scipy.special import logsumexp
+'''
 
+like celfie without atlas estimation 
+'''
 
 class CelfiePlus:
     '''
