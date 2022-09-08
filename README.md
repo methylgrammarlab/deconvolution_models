@@ -17,4 +17,5 @@ pip install git+https://<PERSONAL ACCESS TOKEN>@github.com/methylgrammarlab/deco
 to deconvolute:
 ```
 deconvolution -j <config.json>
+
 ```
