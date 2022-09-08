@@ -59,20 +59,26 @@ class READMeth:
             arr[arr==0] += self.pseudocount
         return list_of_arrays
 
-    def log_likelihood(self, alpha): # this works
+    def likelihood(self, alpha): #TODO: fix
         ll = 0
         for window in range(len(self.x)):
-            log_lambda = self.log_Lt[window]
-            log_one_minus_lambda = self.log_one_minus_Lt[window]
-            logH = self.log_x_given_H[window]
-            logL = self.log_x_given_L[window]
-            t_c = np.ones((log_lambda.shape[0], logH.shape[0]))
-            a = logsumexp([(log_lambda*t_c.T).T+logH*t_c, (log_one_minus_lambda*t_c.T).T+logL*t_c], axis=0)
-            b = logsumexp(((np.log(alpha)*t_c.T).T + a), axis=0)
-            ll += np.sum(b)
+            Lt = self.Lt[window]
+            T, C, M = Lt.shape[0], self.x_c_m[window].shape[0], self.x_c_m[window].shape[1]
+            l_win = np.zeros(C)
+            for c in range(C):
+                for t in range(T):
+                    high = 1
+                    low = 1
+                    for m in range(M):
+                        high *= (self.thetaH[window][m]**self.x_c_m[window][c,m])*((1-self.thetaH[window][m])**self.x_c_u[window][c,m])
+                        low *= (self.thetaL[window][m]**self.x_c_m[window][c,m])*((1-self.thetaL[window][m])**self.x_c_u[window][c,m])
+                    l_win[c] += alpha[t]*Lt[t]*high
+                    l_win[c] += alpha[t]*(1-Lt[t])*low
+            ll += np.sum(np.log(l_win))
         return ll
 
-    def calc_x_given_prob(self, prob): #this works
+
+    def calc_x_given_prob(self, prob):
         '''
         since thetas are given this
         is a constant
@@ -90,24 +96,35 @@ class READMeth:
     def calc_mu(self, z):
         mu = []
         for window in range(len(self.x)):
-            t_c = np.ones((self.alpha.shape[0], self.x_c_m[window].shape[0]))
-            log_high = logsumexp((self.log_Lt[window]*t_c.T).T + self.log_x_given_H[window]*t_c + np.log(z[window]), axis=0)
-            log_low = logsumexp((self.log_one_minus_Lt[window]*t_c.T).T + self.log_x_given_L[window]*t_c + np.log(z[window]), axis=0)
-            log_mu = log_high - logsumexp([log_high, log_low], axis=0)
-            mu.append(np.exp(log_mu))
+            Lt = self.Lt[window]
+            T, C, M = Lt.shape[0],  self.x_c_m[window].shape[0], self.x_c_m[window].shape[1]
+            mu_win_high, mu_win_low = np.zeros(C), np.zeros(C)
+            for c in range(C):
+                for t in range(T):
+                    high = 1
+                    low = 1
+                    for m in range(M):
+                        high *= (self.thetaH[window][m]**self.x_c_m[window][c,m])*((1-self.thetaH[window][m])**self.x_c_u[window][c,m])
+                        low *= (self.thetaL[window][m]**self.x_c_m[window][c,m])*((1-self.thetaL[window][m])**self.x_c_u[window][c,m])
+
+                    mu_win_high[c] += z[window][t,c]*Lt[t]*high
+                    mu_win_low[c] += z[window][t,c]*(1-Lt[t])*low
+            mu.append(mu_win_high/(mu_win_high+mu_win_low))
         return mu
 
     def calc_z(self, mu, alpha):
         z = []
         for window in range(len(self.x)):
-            T, C = alpha.shape[0], self.x_c_m[window].shape[0]
-            mu_win = np.tile(mu[window], (T,1))
-            Lt_win = np.tile(self.Lt[window], (C,1)).T
-            alpha_win = np.tile(alpha, (C,1)).T
-            z_win = mu_win*Lt_win*alpha_win + (1-mu_win)*(1-Lt_win)*alpha_win
+            Lt = self.Lt[window]
+            T, C= Lt.shape[0],  self.x_c_m[window].shape[0]
+            z_win = np.ones((T,C))
+            for t in range(T):
+                for c in range(C):
+                    z_win[t,c] = mu[window][c]*Lt[t]*alpha[t] + (1-mu[window][c])*(1-Lt[t])*alpha[t]
             z_win = z_win/np.sum(z_win, axis=0)
             z.append(z_win)
         return z
+
 
     def init_alpha(self):
         if self.alpha is None:
@@ -151,7 +168,7 @@ class READMeth:
         ll = []
         i = 0
         for i in range(self.num_iterations):
-            ll.append(self.log_likelihood(self.alpha))
+            ll.append(self.likelihood(self.alpha))
             self.z = self.calc_z(mu, self.alpha)
             new_alpha = self.maximization(self.z)
             mu = self.calc_mu(self.z)

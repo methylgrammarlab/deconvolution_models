@@ -68,7 +68,7 @@ class CelfiePlus:
             t1.append((np.matmul(x_c_m, log_beta) + np.matmul(x_c_u, log_one_minus_beta)).T)
         return t1
 
-    def add_pseudocounts(self, arr):
+    def add_pseudocounts(self, arr): #TODO: fix
         '''
         move slightly away from 1 and 0
         :param arr: numpy array
