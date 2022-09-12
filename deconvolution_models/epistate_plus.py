@@ -54,10 +54,13 @@ class READMeth:
         :param arr: array of probability
         :return: array without 0 and 1
         '''
+        res = []
         for arr in list_of_arrays:
-            arr[arr==1] -= self.pseudocount
-            arr[arr==0] += self.pseudocount
-        return list_of_arrays
+            new_arr = arr.copy()
+            new_arr[np.isclose(arr, 1)] -= self.pseudocount
+            new_arr[np.isclose(arr, 0)] += self.pseudocount
+            res.append(new_arr)
+        return np.array(res)
 
     def log_likelihood(self, alpha): # this works
         ll = 0
@@ -87,27 +90,41 @@ class READMeth:
             res.append((np.matmul(x_c_m, log_prob) + np.matmul(x_c_u, log_one_minus_prob)).T)
         return res
 
-    def calc_mu(self, z):
-        mu = []
-        for window in range(len(self.x)):
-            t_c = np.ones((self.alpha.shape[0], self.x_c_m[window].shape[0]))
-            log_high = logsumexp((self.log_Lt[window]*t_c.T).T + self.log_x_given_H[window]*t_c + np.log(z[window]), axis=0)
-            log_low = logsumexp((self.log_one_minus_Lt[window]*t_c.T).T + self.log_x_given_L[window]*t_c + np.log(z[window]), axis=0)
-            log_mu = log_high - logsumexp([log_high, log_low], axis=0)
-            mu.append(np.exp(log_mu))
-        return mu
+    # def calc_mu(self, z):
+    #     mu = []
+    #     for window in range(len(self.x)):
+    #         t_c = np.ones((self.alpha.shape[0], self.x_c_m[window].shape[0]))
+    #         log_high = logsumexp((self.log_Lt[window]*t_c.T).T + self.log_x_given_H[window]*t_c + np.log(z[window]), axis=0)
+    #         log_low = logsumexp((self.log_one_minus_Lt[window]*t_c.T).T + self.log_x_given_L[window]*t_c + np.log(z[window]), axis=0)
+    #         log_mu = log_high - logsumexp([log_high, log_low], axis=0)
+    #         mu.append(np.exp(log_mu))
+    #     return self.add_pseudocounts(mu)
 
-    def calc_z(self, mu, alpha):
+    # def calc_z(self, mu, alpha):
+    #     z = []
+    #     for window in range(len(self.x)):
+    #         T, C = alpha.shape[0], self.x_c_m[window].shape[0]
+    #         mu_win = np.tile(mu[window], (T,1))
+    #         Lt_win = np.tile(self.Lt[window], (C,1)).T
+    #         alpha_win = np.tile(alpha, (C,1)).T
+    #         z_win = mu_win*Lt_win*alpha_win + (1-mu_win)*(1-Lt_win)*alpha_win
+    #         z_win = z_win/np.sum(z_win, axis=0)
+    #         z.append(z_win)
+    #     return self.add_pseudocounts(z)
+
+    def calc_z(self, alpha):
         z = []
         for window in range(len(self.x)):
             T, C = alpha.shape[0], self.x_c_m[window].shape[0]
-            mu_win = np.tile(mu[window], (T,1))
+            high = np.tile(self.log_x_given_H[window], (T,1))
+            low = np.tile(self.log_x_given_L[window], (T,1))
             Lt_win = np.tile(self.Lt[window], (C,1)).T
             alpha_win = np.tile(alpha, (C,1)).T
-            z_win = mu_win*Lt_win*alpha_win + (1-mu_win)*(1-Lt_win)*alpha_win
-            z_win = z_win/np.sum(z_win, axis=0)
-            z.append(z_win)
-        return z
+            log_win = logsumexp([high+np.log(Lt_win)+np.log(alpha_win), low+np.log(1-Lt_win)+np.log(alpha_win)], axis=0)
+            log_win = log_win - logsumexp(log_win, axis=0)
+            z.append(np.exp(log_win))
+        return self.add_pseudocounts(z)
+
 
     def init_alpha(self):
         if self.alpha is None:
@@ -147,18 +164,20 @@ class READMeth:
         :return: cell type proportions, log-likelihood
         '''
         self.init_alpha()
-        mu = self.init_mu_no_log()
-        ll = []
+        # mu = self.init_mu_no_log()
+        prev_ll = -np.inf
         i = 0
         for i in range(self.num_iterations):
-            ll.append(self.log_likelihood(self.alpha))
-            self.z = self.calc_z(mu, self.alpha)
+            new_ll = self.log_likelihood(self.alpha)
+            assert new_ll >= prev_ll
+            self.z = self.calc_z( self.alpha)
             new_alpha = self.maximization(self.z)
-            mu = self.calc_mu(self.z)
+            # mu = self.calc_mu(self.z)
 
             if i and self.test_convergence(new_alpha):
                 break
 
             else:  # set current evaluation of alpha and gamma
                 self.alpha = new_alpha
+                prev_ll = new_ll
         return self.alpha, i

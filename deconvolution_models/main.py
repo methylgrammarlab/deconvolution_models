@@ -3,11 +3,13 @@ import json
 import sys
 sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 # sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/deconvolution_models")
+sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/tests")
 from deconvolution_models.celfie import em as celfie
 from deconvolution_models.celfie_plus import CelfiePlus as celfie_plus
 from deconvolution_models.celfie_plus_reatlas import CelfiePlus as reatlas
 from deconvolution_models.epistate import READMeth as epistate
 from deconvolution_models.epistate_plus import READMeth as epistate_plus
+# from epistate_plus_simplified import READMeth as epistate_plus
 import numpy as np
 from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader
 from epiread_tools.naming_conventions import *
@@ -207,21 +209,21 @@ def main(ctx, **kwargs):
     em_model = model(config)
     em_model.run_model()
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
 #%%
 #
-# config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#           "depth": 810.0, "num_iterations": 1000, "random_restarts": 1, "summing":True,
-#           "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_1_rep0_mixture.epiread.gz"],
-#           "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/acin_endo_atlas_over_regions.txt","stop_criterion":0.001,
-#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/mixtures/problem_region.bed", "epiformat":"old_epiread",
-#           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/5_rep0_data.npy",
-#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/5_rep0_metadata_epistate-plus.npy"}
-# #
-# r = EpistatePlus(config)
-# r.run_from_npy()
+config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
+          "depth": 810.0, "num_iterations": 1000, "random_restarts": 1, "summing":True,
+          "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_6_rep9_mixture.epiread.gz"],
+          "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_atlas_over_tims.txt","stop_criterion":0.001,
+          "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_processed_tims.txt", "epiformat":"old_epiread",
+          "data_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/simple_3_cell_v2_data.npy",
+          "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/simple_3_cell_v2_metadata_epistate-plus.npy"}
+#
+r = EpistatePlus(config)
+r.run_from_npy()
 
 # true_alpha = np.array([0.00307692, 0.00615385, 0.00923077, 0.01230769, 0.01538462,
 #        0.01846154, 0.02153846, 0.02461538, 0.02769231, 0.03076923,
