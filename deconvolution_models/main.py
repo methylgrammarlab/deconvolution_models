@@ -170,7 +170,7 @@ class Epistate(CelfiePlus): #TODO: load lambdas and thetas from file
         #load lambdas and thetas
         reader = EpiAtlasReader(self.config)
         self.lambdas = reader.read_lambdas()
-        self.self.thetaH, self.thetaL = reader.read_thetas()
+        self.thetaH, self.thetaL = reader.read_thetas()
 
     def deconvolute(self):
         r = epistate(self.matrices, self.lambdas, self.thetaH, self.thetaL,
@@ -221,13 +221,18 @@ if __name__ == '__main__':
 #%%
 #
 # config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#           "num_iterations": 1000, "random_restarts": 1, "summing":True,
+#           "num_iterations": 1000, "random_restarts": 1,
 #           "stop_criterion":0.001,
 #           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/1_rep6_data.npy",
-#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/1_rep6_metadata_sum-celfie.npy"}
+#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/1_rep6_metadata_sum-celfie.npy",
+#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_6_rep9_mixture.epiread.gz"],
+#           "lambdas":"/Users/ireneu/PycharmProjects/bimodal_detector/results/testing_lambdas.bedgraph",
+#           "thetas":"/Users/ireneu/PycharmProjects/bimodal_detector/results/testing_thetas.bedgraph",
+#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_processed_tims.txt",
+#           "epiformat":"old_epiread_A", "slop":0}
 # #
-# r = Celfie(config)
-# r.run_from_npy()
+# r = EpistatePlus(config)
+# r.run_model()
 
 # true_alpha = np.array([0.00307692, 0.00615385, 0.00923077, 0.01230769, 0.01538462,
 #        0.01846154, 0.02153846, 0.02461538, 0.02769231, 0.03076923,
