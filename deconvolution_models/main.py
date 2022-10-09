@@ -11,7 +11,7 @@ from deconvolution_models.epistate import READMeth as epistate
 from deconvolution_models.epistate_plus import READMeth as epistate_plus
 # from epistate_plus_simplified import READMeth as epistate_plus
 import numpy as np
-from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader
+from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader, EpiAtlasReader
 from epiread_tools.naming_conventions import *
 from epiread_tools.em_utils import calc_coverage, calc_methylated
 
@@ -165,6 +165,12 @@ class Epistate(CelfiePlus): #TODO: load lambdas and thetas from file
     def load_npy(self):
         self.matrices = np.load(self.config["data_file"], allow_pickle=True)
         self.thetaH, self.thetaL, self.lambdas = np.load(self.config["metadata_file"], allow_pickle=True)
+
+    def read_atlas(self):
+        #load lambdas and thetas
+        reader = EpiAtlasReader(self.config)
+        self.lambdas = reader.read_lambdas()
+        self.self.thetaH, self.thetaL = reader.read_thetas()
 
     def deconvolute(self):
         r = epistate(self.matrices, self.lambdas, self.thetaH, self.thetaL,
