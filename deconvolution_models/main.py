@@ -192,7 +192,7 @@ class EpistatePlus(Epistate):
 
 @click.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
 @click.option('--model',
-              type=click.Choice(['celfie','sum-celfie', 'celfie-plus', 'epistate', 'epistate-plus'], case_sensitive=False))
+              type=click.Choice(['celfie','sum-celfie', 'celfie-plus','reatlas', 'epistate', 'epistate-plus'], case_sensitive=False))
 @click.option('-j', '--json', help='run from json config file')
 @click.version_option()
 @click.pass_context
@@ -211,6 +211,8 @@ def main(ctx, **kwargs):
         config["summing"]=True
     elif config["model"]=='celfie-plus':
         model = CelfiePlus
+    elif config["model"]=='reatlas':
+        model = ReAtlas
     elif config["model"]=='epistate':
         model=Epistate
     else:
