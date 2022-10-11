@@ -73,13 +73,13 @@ class Celfie(EMmodel):
         self.x, self.x_depths = np.hstack(self.methylation), np.hstack(self.coverage) #no summing
         if self.config["summing"]:
             self.x, self.x_depths = np.array([np.sum(x) for x in self.methylation]), \
-                                    np.array([np.sum(x) for x in self.coverage]) #TODO: debug
+                                    np.array([np.sum(x) for x in self.coverage])
     def read_atlas(self):
         reader = AtlasReader(self.config)
         self.y, self.y_depths = reader.meth_cov_to_meth_cov() #no summing
         if self.config["summing"]:
-            self.y, self.y = np.array([np.sum(x) for x in self.y]), \
-                                    np.array([np.sum(x) for x in self.y_depths]) #TODO: debug
+            self.y, self.y_depths = np.vstack([np.sum(x, axis=1) for x in self.y]).T, \
+                                    np.vstack([np.sum(x, axis=1) for x in self.y_depths]).T
         else:
             self.y, self.y_depths = np.hstack(self.y), np.hstack(self.y_depths)
 
@@ -228,13 +228,12 @@ if __name__ == '__main__':
 #
 # config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
 #           "num_iterations": 1000, "random_restarts": 1,
-#           "stop_criterion":0.001,
-#           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/1_rep6_data.npy",
-#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/1_rep6_metadata_sum-celfie.npy",
+#           "stop_criterion":0.001, "summing":True,
 #           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_6_rep9_mixture.epiread.gz"],
+#           "atlas_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_all_models_atlas_over_regions.txt",
 #           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_all_models_lambdas.bedgraph",
 #           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_all_models_thetas.bedgraph",
-#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_processed_tims.txt",
+#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_all_models_merged_regions_file.bed",
 #           "epiformat":"old_epiread_A", "slop":0}
 # #
 # r = EpistatePlus(config)

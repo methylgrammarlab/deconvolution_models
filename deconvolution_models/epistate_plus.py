@@ -3,6 +3,7 @@ from scipy.special import logsumexp
 import sys
 sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 from epiread_tools.naming_conventions import *
+from itertools import compress
 
 
 class READMeth:
@@ -22,7 +23,7 @@ class READMeth:
         '''
         self.x = mixtures
         self.x_c_v = [(~(x == NOVAL)).any() for x in self.x]
-        self.Lt = self.add_pseudocounts(lambda_t)
+        self.Lt = np.array(self.add_pseudocounts(lambda_t))
         self.thetaH = theta_high
         self.thetaL = theta_low
         self.filter_no_coverage()
@@ -42,10 +43,10 @@ class READMeth:
         self.log_x_given_L = self.calc_x_given_prob(self.thetaL)
 
     def filter_no_coverage(self):
-        self.x = self.x[self.x_c_v]
+        self.x = list(compress(self.x, self.x_c_v))
         self.Lt = self.Lt[self.x_c_v]
-        self.thetaH = self.thetaH[self.x_c_v]
-        self.thetaL = self.thetaL[self.x_c_v]
+        self.thetaH =list(compress(self.thetaH, self.x_c_v))
+        self.thetaL = list(compress(self.thetaL, self.x_c_v))
 
 
     def add_pseudocounts(self, list_of_arrays):
@@ -60,7 +61,7 @@ class READMeth:
             new_arr[np.isclose(arr, 1)] -= self.pseudocount
             new_arr[np.isclose(arr, 0)] += self.pseudocount
             res.append(new_arr)
-        return np.array(res)
+        return res
 
     def log_likelihood(self, alpha): # this works
         ll = 0
