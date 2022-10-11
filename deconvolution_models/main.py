@@ -229,7 +229,7 @@ if __name__ == '__main__':
 # config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
 #           "num_iterations": 1000, "random_restarts": 1,
 #           "stop_criterion":0.001, "summing":True,
-#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_all_models_6_rep4_mixture.epiread.gz"],
+#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_all_models_3_rep5_mixture.epiread.gz"],
 #           "atlas_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_all_models_atlas_over_regions.txt",
 #           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_all_models_lambdas.bedgraph",
 #           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_all_models_thetas.bedgraph",

@@ -73,7 +73,7 @@ class READMeth:
             t_c = np.ones((log_lambda.shape[0], logH.shape[0]))
             a = logsumexp([(log_lambda*t_c.T).T+logH*t_c, (log_one_minus_lambda*t_c.T).T+logL*t_c], axis=0)
             b = logsumexp(((np.log(alpha)*t_c.T).T + a), axis=0)
-            ll += np.sum(b)
+            ll += np.nansum(b)
         return ll
 
     def calc_x_given_prob(self, prob): #this works
