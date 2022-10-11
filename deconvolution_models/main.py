@@ -205,6 +205,9 @@ def main(ctx, **kwargs):
 
     if config["model"]=='celfie':
         model=Celfie
+    elif config["model"]=="sum-celfie":
+        model=Celfie
+        config["summing"]=True
     elif config["model"]=='celfie-plus':
         model = CelfiePlus
     elif config["model"]=='epistate':
@@ -226,8 +229,8 @@ if __name__ == '__main__':
 #           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/1_rep6_data.npy",
 #           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/1_rep6_metadata_sum-celfie.npy",
 #           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_6_rep9_mixture.epiread.gz"],
-#           "lambdas":"/Users/ireneu/PycharmProjects/bimodal_detector/results/testing_lambdas.bedgraph",
-#           "thetas":"/Users/ireneu/PycharmProjects/bimodal_detector/results/testing_thetas.bedgraph",
+#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_all_models_lambdas.bedgraph",
+#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_all_models_thetas.bedgraph",
 #           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/EM_regions_100_processed_tims.txt",
 #           "epiformat":"old_epiread_A", "slop":0}
 # #
