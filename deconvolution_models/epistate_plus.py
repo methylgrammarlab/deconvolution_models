@@ -151,8 +151,8 @@ class READMeth:
         :return: alpha
         '''
         all_z = np.hstack(z)
-        new_alpha = np.sum(all_z, axis=1) / self.c
-        new_alpha /= np.sum(new_alpha)
+        new_alpha = np.nansum(all_z, axis=1) / self.c
+        new_alpha /= np.nansum(new_alpha)
         return new_alpha
 
     def test_convergence(self, new_alpha):
