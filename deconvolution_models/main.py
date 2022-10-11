@@ -205,6 +205,7 @@ def main(ctx, **kwargs):
 
     if config["model"]=='celfie':
         model=Celfie
+        config["summing"]=False
     elif config["model"]=="sum-celfie":
         model=Celfie
         config["summing"]=True
