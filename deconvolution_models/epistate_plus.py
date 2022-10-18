@@ -22,10 +22,9 @@ class READMeth:
         :param convergence_criteria: stopping criteria for em
         '''
         self.x = mixtures
-        self.x_c_v = [(~(x == NOVAL)).any() for x in self.x]
         self.Lt = np.array(self.add_pseudocounts(lambda_t))
-        self.thetaH = theta_high
-        self.thetaL = theta_low
+        self.thetaH = self.add_pseudocounts(theta_high)
+        self.thetaL = self.add_pseudocounts(theta_low)
         self.filter_no_coverage()
 
         self.log_Lt =  [np.log(t) for t in self.Lt]
@@ -43,10 +42,26 @@ class READMeth:
         self.log_x_given_L = self.calc_x_given_prob(self.thetaL)
 
     def filter_no_coverage(self):
-        self.x = list(compress(self.x, self.x_c_v))
-        self.Lt = self.Lt[self.x_c_v]
-        self.thetaH =list(compress(self.thetaH, self.x_c_v))
-        self.thetaL = list(compress(self.thetaL, self.x_c_v))
+        '''
+        remove empty rows
+        remove empty columns
+        remove empty regions
+        :return:
+        '''
+        #remove empty rows
+        row_filter = [(~(x == NOVAL)).any(axis=1) for x in self.x]
+        self.x = [self.x[i][row_filter[i],:] for i in range(len(self.x))]
+        #remove empty cols
+        col_filter = [(~(x == NOVAL)).any(axis=0) for x in self.x]
+        self.x = [self.x[i][:, col_filter[i]] for i in range(len(self.x))]
+        self.thetaH = [self.thetaH[i][col_filter[i]] for i in range(len(self.x))]
+        self.thetaL = [self.thetaL[i][col_filter[i]] for i in range(len(self.x))]
+        #remove empty regions
+        region_filter = [(~(x == NOVAL)).any() for x in self.x]
+        self.x = list(compress(self.x, region_filter))
+        self.Lt = self.Lt[region_filter]
+        self.thetaH =list(compress(self.thetaH, region_filter))
+        self.thetaL = list(compress(self.thetaL, region_filter))
 
 
     def add_pseudocounts(self, list_of_arrays):
