@@ -1,10 +1,18 @@
 '''
-play with CelFiE code from:
+portions of this code are copied from CelFiE:
 Christa Caggiano, Barbara Celona, Fleur Garton, Joel Mefford, Brian Black, Catherine Lomen-Hoerth,
 Andrew Dahl, Noah Zaitlen, "Comprehensive cell type decomposition of circulating cell-free DNA with CelFiE",
 Nature Communications, May 2021
 
 https://github.com/christacaggiano/celfie
+
+Portions of the code are licensed under:
+
+                    GNU AFFERO GENERAL PUBLIC LICENSE
+                       Version 3, 19 November 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+ 
 '''
 
 
