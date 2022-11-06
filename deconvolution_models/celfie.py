@@ -174,7 +174,7 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
 
         # check convergence of alpha and gamma
         alpha_diff = np.mean(abs(a - alpha)) / np.mean(abs(alpha))
-        gamma_diff = np.mean(abs(g - gamma)) / np.mean(abs(gamma))
+        gamma_diff = np.nanmean(abs(g - gamma)) / np.nanmean(abs(gamma)) #IU: changed to nanmean
 
         if i and ( #I added this
             alpha_diff + gamma_diff < convergence_criteria
