@@ -228,16 +228,16 @@ if __name__ == '__main__':
 #
 # config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
 #           "num_iterations": 1000, "random_restarts": 1,
-#           "stop_criterion":0.001, "summing":True,
-#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/all_models_linear_6_rep9_mixture.epiread.gz"],
-#           "atlas_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/all_models_linear_atlas_over_regions.txt",
-#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/all_models_linear_lambdas.bedgraph",
-#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/all_models_linear_thetas.bedgraph",
-#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/all_models_linear_merged_regions_file.bed",
+#           "stop_criterion":0.001, "summing":False,
+#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/051122_mixture_7_rep0_mixture.epiread.gz"],
+#           "atlas_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/051122_mixture_atlas_over_regions.txt",
+#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/051122_mixture_lambdas.bedgraph",
+#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/051122_mixture_thetas.bedgraph",
+#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/051122_mixture_merged_regions_file.bed",
 #           "epiformat":"old_epiread_A", "slop":0}
-#
-# config = {"data_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/18_rep5_data.npy",
-#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/18_rep5_metadata_celfie.npy",
+# #
+# config = {"data_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/43_rep9_data.npy",
+#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/43_rep9_metadata_reatlas.npy",
 #                     "num_iterations": 1000, "random_restarts": 1,
 #                     "stop_criterion":0.001, "summing":False
 #           }

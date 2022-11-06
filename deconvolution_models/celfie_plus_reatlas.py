@@ -32,7 +32,7 @@ class CelfiePlus:
         self.convergence_criteria = convergence_criteria
         self.x_c_m = [(x == METHYLATED) for x in self.x]
         self.x_c_u = [(x == UNMETHYLATED) for x in self.x]
-        self.x_c_v = [~(x == NOVAL) for x in self.x]
+        self.x_c_v = [self.x_c_m[i]|self.x_c_u[i] for i in range(len(self.x))]
         self.t = self.beta[0].shape[0]
         self.alpha = alpha
 
@@ -73,15 +73,15 @@ class CelfiePlus:
             res_depths.append(new_a_depths)
         return res, res_depths
 
-    def calc_term1(self):
+    def calc_term1(self, beta):
         '''
         since beta is constant, so is the
         first term of the likelihood
         :return: log term1
         '''
         t1 = []
-        log_beta = [np.log(x) for x in self.beta]
-        log_one_minus_beta = [np.log(1 - x) for x in self.beta]
+        log_beta = [np.log(x) for x in beta]
+        log_one_minus_beta = [np.log(1 - x) for x in beta]
         for window in range(len(self.x)):
             x_c_m =  self.x_c_m[window].astype(int)
             x_c_u = self.x_c_u[window].astype(int)
@@ -90,14 +90,14 @@ class CelfiePlus:
             t1.append((np.matmul(x_c_m, log_beta_win) + np.matmul(x_c_u, log_one_minus_beta_win)).T)
         return t1
 
-    def log_expectation(self, alpha):
+    def log_expectation(self, alpha, beta):
         '''
         P(z=1|x, alpha_i)
         :param alpha: cell type proportions
         :return: probability of z
         '''
         z = []
-        term1 = self.calc_term1()
+        term1 = self.calc_term1(beta)
 
         for window in range(len(self.x)):
             T, C = term1[window].shape
@@ -107,19 +107,19 @@ class CelfiePlus:
             z.append(np.exp(log_z))
         return z
 
-    def log_likelihood(self, alpha):
+    def log_likelihood(self, alpha, beta):
         '''
         logP(x|alpha, beta)
         :param alpha: cell type proportions
         :return: log likelihood
         '''
         ll = 0
-        term1 = self.calc_term1()
+        term1 = self.calc_term1(beta)
         for window in range(len(self.x)):
             log_t1 = term1[window]
             T, C = log_t1.shape
             ll += np.sum(logsumexp(np.tile(np.log(alpha), (C, 1)).T + log_t1, axis=0))
-            ll += np.nansum(self.y[window]*np.log(self.beta[window]) + (self.y_depths[window] - self.y[window])*np.log(1-self.beta[window]))
+            ll += np.nansum(self.y[window]*np.log(beta[window]) + (self.y_depths[window] - self.y[window])*np.log(1-beta[window]))
         return ll
 
     def maximization(self, z):
@@ -160,10 +160,13 @@ class CelfiePlus:
         '''
         if not self.alpha:
             self.init_alpha()
-        # ll = []
+        prev_ll = -np.inf
         for i in range(self.num_iterations):
-            # ll.append(self.get_ll())
-            z = self.log_expectation(self.alpha)
+            new_ll = self.log_likelihood(self.alpha, self.beta)
+            assert new_ll >= prev_ll, "old likelihood %.2f new likelihood %0.2f, alpha %s" % (
+            prev_ll, new_ll, str(self.alpha))
+
+            z = self.log_expectation(self.alpha, self.beta)
             new_alpha, new_beta = self.maximization(z)
             if i and self.test_convergence(new_alpha):
                 break
@@ -171,10 +174,11 @@ class CelfiePlus:
             else:  # set current evaluation of alpha and gamma
                 self.alpha = new_alpha
                 self.beta = new_beta
+                prev_ll = new_ll
         return self.alpha, i
 
     def get_ll(self):
-        return self.log_likelihood(self.alpha)
+        return self.log_likelihood(self.alpha, self.beta)
 
 
 
