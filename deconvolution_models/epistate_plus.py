@@ -49,10 +49,10 @@ class READMeth:
         :return:
         '''
         #remove empty rows
-        row_filter = [(~(x == NOVAL)).any(axis=1) for x in self.x]
+        row_filter = [(~(x == NOVAL)).any(axis=1) if x.any() else [] for x in self.x]
         self.x = [self.x[i][row_filter[i],:] for i in range(len(self.x))]
         #remove empty cols
-        col_filter = [(~(x == NOVAL)).any(axis=0) for x in self.x]
+        col_filter = [(~(x == NOVAL)).any(axis=0) if x.any() else [] for x in self.x]
         self.x = [self.x[i][:, col_filter[i]] for i in range(len(self.x))]
         self.thetaH = [self.thetaH[i][col_filter[i]] for i in range(len(self.x))]
         self.thetaL = [self.thetaL[i][col_filter[i]] for i in range(len(self.x))]

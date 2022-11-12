@@ -193,8 +193,9 @@ class Epistate(CelfiePlus): #TODO: load lambdas and thetas from file
     def read_atlas(self):
         #load lambdas and thetas
         reader = EpiAtlasReader(self.config)
-        self.lambdas = reader.read_lambdas()
-        self.thetaH, self.thetaL = reader.read_thetas()
+        self.lambda_intervals, self.lambdas = reader.read_lambdas()
+        self.theta_intervals, self.thetaH, self.thetaL = reader.read_thetas()
+        #TODO: make sure order is the same
 
     def deconvolute(self):
         r = epistate(self.matrices, self.lambdas, self.thetaH, self.thetaL,
@@ -253,11 +254,11 @@ if __name__ == '__main__':
 # config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
 #           "num_iterations": 1000, "random_restarts": 1,
 #           "stop_criterion":0.001, "summing":False,
-#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/051122_mixture_7_rep0_mixture.epiread.gz"],
-#           "atlas_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/051122_mixture_atlas_over_regions.txt",
-#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/051122_mixture_lambdas.bedgraph",
-#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/051122_mixture_thetas.bedgraph",
-#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/051122_mixture_merged_regions_file.bed",
+#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/121122_mixture_density_netanel_4_rep5_mixture.epiread.gz"],
+#           "atlas_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/121122_mixture_density_netanel_atlas_over_regions.txt",
+#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/121122_mixture_density_netanel_lambdas.bedgraph",
+#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/121122_mixture_density_netanel_thetas.bedgraph",
+#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/121122_mixture_density_netanel_merged_regions_file.bed",
 #           "epiformat":"old_epiread_A", "slop":0}
 # #
 # config = {"data_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/43_rep9_data.npy",
