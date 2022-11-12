@@ -195,7 +195,29 @@ class Epistate(CelfiePlus): #TODO: load lambdas and thetas from file
         reader = EpiAtlasReader(self.config)
         self.lambda_intervals, self.lambdas = reader.read_lambdas()
         self.theta_intervals, self.thetaH, self.thetaL = reader.read_thetas()
-        #TODO: make sure order is the same
+        self.sort_intervals()
+
+    def sort_intervals(self):
+        '''
+        make sure everything is in the same order
+        mostly useful if data missing in atlas
+        :return:
+        '''
+        lambda_order = dict(zip([str(x) for x in self.lambda_intervals], self.lambdas))
+        thetaH_order = dict(zip([str(x) for x in self.theta_intervals], self.thetaH))
+        thetaL_order = dict(zip([str(x) for x in self.theta_intervals], self.thetaL))
+        interval_order, lambdas, thetaH, thetaL, cpgs, matrices = [], [], [], [],[],[]
+        for i, interval in enumerate(self.interval_order):
+            if str(interval) in lambda_order: #exists in atlas
+                interval_order.append(interval)
+                lambdas.append(lambda_order[str(interval)])
+                thetaH.append(thetaH_order[str(interval)])
+                thetaL.append(thetaL_order[str(interval)])
+                cpgs.append(self.cpgs[i])
+                matrices.append(self.matrices[i])
+        self.interval_order, self.lambdas, self.thetaH, self.thetaL, self.cpgs, self.matrices =\
+        interval_order, lambdas, thetaH, thetaL, cpgs, matrices
+
 
     def deconvolute(self):
         r = epistate(self.matrices, self.lambdas, self.thetaH, self.thetaL,
