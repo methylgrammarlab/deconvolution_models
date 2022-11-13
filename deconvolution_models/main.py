@@ -185,7 +185,7 @@ class ReAtlas(CelfiePlus):
         self.alpha, self.i = r.two_step()
 
 
-class Epistate(CelfiePlus): #TODO: load lambdas and thetas from file
+class Epistate(CelfiePlus): #TODO: load lambdas and thetas from fil
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = "epistate"
