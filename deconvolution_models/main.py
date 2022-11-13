@@ -100,12 +100,14 @@ class Celfie(EMmodel):
                                     np.array([np.sum(x) for x in self.coverage])
     def read_atlas(self):
         reader = AtlasReader(self.config)
-        self.y, self.y_depths = reader.meth_cov_to_meth_cov() #no summing
+        self.atlas_intervals, self.y, self.y_depths = reader.meth_cov_to_meth_cov() #no summing
         if self.config["summing"]:
             self.y, self.y_depths = np.vstack([np.sum(x, axis=1) for x in self.y]).T, \
                                     np.vstack([np.sum(x, axis=1) for x in self.y_depths]).T
         else:
             self.y, self.y_depths = np.hstack(self.y), np.hstack(self.y_depths)
+        assert self.atlas_intervals == self.interval_order
+
 
     def load_npy(self):
         self.matrices = np.load(self.config["data_file"], allow_pickle=True)
@@ -150,7 +152,8 @@ class CelfiePlus(EMmodel):
 
     def read_atlas(self):
         reader = AtlasReader(self.config)
-        self.atlas_matrices = reader.meth_cov_to_beta_matrices()
+        self.atlas_intervals, self.atlas_matrices = reader.meth_cov_to_beta_matrices()
+        assert self.atlas_intervals == self.interval_order
 
     def load_npy(self):
         self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
@@ -168,7 +171,8 @@ class ReAtlas(CelfiePlus):
 
     def read_atlas(self):
         reader = AtlasReader(self.config)
-        self.y, self.y_depths = reader.meth_cov_to_meth_cov()
+        self.atlas_intervals, self.y, self.y_depths = reader.meth_cov_to_meth_cov()
+        assert self.atlas_intervals == self.interval_order
 
 
     def load_npy(self):
