@@ -281,19 +281,19 @@ if __name__ == '__main__':
 # config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
 #           "num_iterations": 1000, "random_restarts": 1,
 #           "stop_criterion":0.001, "summing":False,
-#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/181122_mixture_netanel_5_rep24_mixture.epiread.gz"],
-#           "atlas_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/181122_mixture_netanel_atlas_over_regions.txt",
-#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/181122_mixture_netanel_lambdas.bedgraph",
-#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/181122_mixture_netanel_thetas.bedgraph",
-#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/181122_mixture_netanel_merged_regions_file.bed",
+#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_1_rep4_mixture.epiread.gz"],
+#           "atlas_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_atlas_over_regions.txt",
+#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_lambdas.bedgraph",
+#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_thetas.bedgraph",
+#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_merged_regions_file.bed",
 #           "epiformat":"old_epiread_A", "slop":0}
-# #
+#
 # config = {"data_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/43_rep9_data.npy",
 #           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/43_rep9_metadata_reatlas.npy",
 #                     "num_iterations": 1000, "random_restarts": 1,
 #                     "stop_criterion":0.001, "summing":False
 #           }
-# r = EpistatePlus(config)
+# r = Celfie(config)
 # r.run_model()
 
 # true_alpha = np.array([0.00307692, 0.00615385, 0.00923077, 0.01230769, 0.01538462,
