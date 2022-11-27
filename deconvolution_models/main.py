@@ -92,7 +92,7 @@ class Celfie(EMmodel):
 
     def read_mixture(self):
         reader = self.reader(self.config)
-        self.interval_order, self.matrices, self.cpgs = reader.get_matrices_for_intervals()
+        self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
         self.methylation, self.coverage = calc_methylated(self.matrices), calc_coverage(self.matrices)
         self.x, self.x_depths = np.hstack(self.methylation), np.hstack(self.coverage) #no summing
         if self.config["summing"]:
@@ -147,7 +147,7 @@ class CelfiePlus(EMmodel):
 
     def read_mixture(self):
         reader = self.reader(self.config)
-        self.interval_order, self.matrices, self.cpgs = reader.get_matrices_for_intervals()
+        self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
         self.matrices = [x.toarray() for x in self.matrices]
 
     def read_atlas(self):
@@ -210,7 +210,7 @@ class Epistate(CelfiePlus): #TODO: load lambdas and thetas from fil
         lambda_order = dict(zip([str(x) for x in self.lambda_intervals], self.lambdas))
         thetaH_order = dict(zip([str(x) for x in self.theta_intervals], self.thetaH))
         thetaL_order = dict(zip([str(x) for x in self.theta_intervals], self.thetaL))
-        interval_order, lambdas, thetaH, thetaL, cpgs, matrices = [], [], [], [],[],[]
+        interval_order, lambdas, thetaH, thetaL, cpgs, matrices, origins = [], [], [], [],[],[], []
         for i, interval in enumerate(self.interval_order):
             if str(interval) in lambda_order: #exists in atlas
                 interval_order.append(interval)
@@ -218,9 +218,10 @@ class Epistate(CelfiePlus): #TODO: load lambdas and thetas from fil
                 thetaH.append(thetaH_order[str(interval)])
                 thetaL.append(thetaL_order[str(interval)])
                 cpgs.append(self.cpgs[i])
+                origins.append(self.origins[i])
                 matrices.append(self.matrices[i])
-        self.interval_order, self.lambdas, self.thetaH, self.thetaL, self.cpgs, self.matrices =\
-        interval_order, lambdas, thetaH, thetaL, cpgs, matrices
+        self.interval_order, self.lambdas, self.thetaH, self.thetaL, self.cpgs, self.matrices, self.origins =\
+        interval_order, lambdas, thetaH, thetaL, cpgs, matrices, origins
 
 
     def deconvolute(self):
@@ -280,11 +281,11 @@ if __name__ == '__main__':
 # config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
 #           "num_iterations": 1000, "random_restarts": 1,
 #           "stop_criterion":0.001, "summing":False,
-#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/121122_mixture_density_netanel_4_rep5_mixture.epiread.gz"],
-#           "atlas_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/121122_mixture_density_netanel_atlas_over_regions.txt",
-#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/121122_mixture_density_netanel_lambdas.bedgraph",
-#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/121122_mixture_density_netanel_thetas.bedgraph",
-#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/121122_mixture_density_netanel_merged_regions_file.bed",
+#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/181122_mixture_netanel_5_rep24_mixture.epiread.gz"],
+#           "atlas_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/181122_mixture_netanel_atlas_over_regions.txt",
+#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/181122_mixture_netanel_lambdas.bedgraph",
+#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/181122_mixture_netanel_thetas.bedgraph",
+#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/181122_mixture_netanel_merged_regions_file.bed",
 #           "epiformat":"old_epiread_A", "slop":0}
 # #
 # config = {"data_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/43_rep9_data.npy",

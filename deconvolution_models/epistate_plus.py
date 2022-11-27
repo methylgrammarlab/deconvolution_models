@@ -12,7 +12,8 @@ class READMeth:
     '''
     pseudocount = 1e-10
 
-    def __init__(self, mixtures, lambda_t, theta_high, theta_low, num_iterations=50, convergence_criteria=0.001, alpha=None):
+    def __init__(self, mixtures, lambda_t, theta_high, theta_low,
+                  num_iterations=50, convergence_criteria=0.001, alpha=None):
         '''
         :param mixtures: data for deconvolution. c reads by m cpg sites
         :param lambda_t: prob of epistateH per cell type
@@ -50,15 +51,19 @@ class READMeth:
         '''
         #remove empty rows
         row_filter = [(~(x == NOVAL)).any(axis=1) if x.any() else [] for x in self.x]
-        self.x = [self.x[i][row_filter[i],:] for i in range(len(self.x))]
+        self.x = [self.x[i][row_filter[i],:] for i in range(len(row_filter))]
+        self.origins = [self.origins[i][row_filter[i]] for i in range(len(row_filter))]
+
         #remove empty cols
         col_filter = [(~(x == NOVAL)).any(axis=0) if x.any() else [] for x in self.x]
         self.x = [self.x[i][:, col_filter[i]] for i in range(len(self.x))]
-        self.thetaH = [self.thetaH[i][col_filter[i]] for i in range(len(self.x))]
-        self.thetaL = [self.thetaL[i][col_filter[i]] for i in range(len(self.x))]
+        self.thetaH = [self.thetaH[i][col_filter[i]] for i in range(len(self.thetaH))]
+        self.thetaL = [self.thetaL[i][col_filter[i]] for i in range(len(self.thetaL))]
         #remove empty regions
         region_filter = [(~(x == NOVAL)).any() for x in self.x]
         self.x = list(compress(self.x, region_filter))
+        self.origins = list(compress(self.origins, region_filter))
+
         self.Lt = self.Lt[region_filter]
         self.thetaH =list(compress(self.thetaH, region_filter))
         self.thetaL = list(compress(self.thetaL, region_filter))
@@ -197,3 +202,6 @@ class READMeth:
                 self.alpha = new_alpha
                 prev_ll = new_ll
         return self.alpha, i
+#%%
+
+
