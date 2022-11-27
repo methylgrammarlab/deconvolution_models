@@ -52,7 +52,7 @@ class READMeth:
         #remove empty rows
         row_filter = [(~(x == NOVAL)).any(axis=1) if x.any() else [] for x in self.x]
         self.x = [self.x[i][row_filter[i],:] for i in range(len(row_filter))]
-        self.origins = [self.origins[i][row_filter[i]] for i in range(len(row_filter))]
+        # self.origins = [self.origins[i][row_filter[i]] for i in range(len(row_filter))]
 
         #remove empty cols
         col_filter = [(~(x == NOVAL)).any(axis=0) if x.any() else [] for x in self.x]
@@ -62,7 +62,7 @@ class READMeth:
         #remove empty regions
         region_filter = [(~(x == NOVAL)).any() for x in self.x]
         self.x = list(compress(self.x, region_filter))
-        self.origins = list(compress(self.origins, region_filter))
+        # self.origins = list(compress(self.origins, region_filter))
 
         self.Lt = self.Lt[region_filter]
         self.thetaH =list(compress(self.thetaH, region_filter))
