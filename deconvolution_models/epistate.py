@@ -1,5 +1,7 @@
 
 '''
+Celfie plus
+
 MIT License
 
 Copyright (c) 2022 irene unterman and ben berman
@@ -27,81 +29,146 @@ import numpy as np
 import sys
 sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 from epiread_tools.naming_conventions import *
+from itertools import compress
+from scipy.special import logsumexp
 
-class READMeth:
+
+class CelfiePlus:
     '''
     Read-based EM Algorithm for Deconvolution of Methylation sequencing
     '''
-    pseudocount = 1e-10
 
-    def __init__(self, mixtures, lambda_t, theta_high, theta_low, num_iterations=50, convergence_criteria=0.001, alpha=None):
+    def __init__(self, mixtures, lambda_t, theta_high, theta_low, origins=None, num_iterations=50, convergence_criteria=0.001, alpha=None):
         '''
         :param mixtures: data for deconvolution. c reads by m cpg sites
-        :param lambda_t: prob of epistateH per cell type
-        :param theta_high: methylation prob under epistateH per cpg
-        :param theta_low: methylation prob under epistateL per cpg
+        :param beta: methylation probability for reference atlas
         :param num_iterations: maximum iterations for em
         :param convergence_criteria: stopping criteria for em
+        :param alpha: override random initialization
         '''
-        self.x = mixtures
-        self.x_c_v = [(~(x == NOVAL)).any() for x in self.x]
-        self.Lt = self.add_pseudocounts(lambda_t)
-        self.thetaH = theta_high
-        self.thetaL = theta_low
+        self.x = self.filter_empty_rows(mixtures)
+        self.Lt = np.array(self.add_pseudocounts(lambda_t))
+        self.thetaH = self.add_pseudocounts(theta_high)
+        self.thetaL = self.add_pseudocounts(theta_low)
+        self.origins = origins
+        self.beta = self.calc_beta()
         self.filter_no_coverage()
-        self.log_Lt =  [np.log(t) for t in self.Lt]
-        self.log_one_minus_Lt = [np.log(1-t) for t in self.Lt]
-        self.log_thetaH = [np.log(t) for t in self.thetaH]
-        self.log_thetaL = [np.log(t) for t in self.thetaL]
-        self.log_one_minus_thetaH = [np.log(1-t) for t in self.thetaH]
-        self.log_one_minus_thetaL = [np.log(1-t) for t in self.thetaL]
+        # self.x = [length_one(self.x[0])]
+        # self.x = [shuffle(self.x[0])]
         self.num_iterations = num_iterations
         self.convergence_criteria = convergence_criteria
         self.x_c_m = [(x == METHYLATED) for x in self.x]
         self.x_c_u = [(x == UNMETHYLATED) for x in self.x]
-        self.t = self.Lt[0].shape[0]
-        c, m = [arr.shape[0] if arr.any() else NOVAL for arr in self.x], [arr.shape[1] if arr.any() else NOVAL for arr in self.x]
-        self.c, self.m = np.sum(c), np.sum(m)
+        self.x_c_v = [~(x == NOVAL) for x in self.x]
+
+        self.t = self.beta[0].shape[0]
         self.alpha = alpha
 
+        self.log_beta = [np.log(x) for x in self.beta]
+        self.log_one_minus_beta = [np.log(1-x) for x in self.beta]
+        self.log_term1 = self.calc_term1()
+
+    def calc_beta(self):
+        res = []
+        for i in range(len(self.Lt)):
+            T=self.Lt[i].shape[0]
+            M = self.thetaH[i].shape[0]
+            res.append((np.tile(self.Lt[i], (M,1)).T*np.tile(self.thetaH[i], (T,1)))+
+                       (np.tile(1-self.Lt[i], (M,1)).T*np.tile(self.thetaL[i], (T,1))))
+        return res
+
+    def calc_term1(self):
+        '''
+        since beta is constant, so is the
+        first term of the likelihood
+        :return: log term1
+        '''
+        t1 = []
+        for window in range(len(self.x)):
+            x_c_m =  self.x_c_m[window].astype(int)
+            x_c_u = self.x_c_u[window].astype(int)
+            log_beta = np.nan_to_num(self.log_beta[window].T)
+            log_one_minus_beta = np.nan_to_num(self.log_one_minus_beta[window].T)
+            t1.append((np.matmul(x_c_m, log_beta) + np.matmul(x_c_u, log_one_minus_beta)).T)
+        return t1
+
+    def add_pseudocounts(self, arr): #TODO: fix
+        '''
+        move slightly away from 1 and 0
+        :param arr: numpy array
+        :return: changes array inplace
+        '''
+        pc = 1e-10
+        arr[arr==0] += pc
+        arr[arr==1] -= pc
+        return arr
+
+    def filter_empty_rows(self, reads):
+        '''
+        remove mixture rows with no data
+        :param reads: mixture
+        :return: filtered mixture
+        '''
+        filtered = []
+        for region in reads:
+            if region.size > 0:
+                filtered_region = region[~(region==NOVAL).all(axis=1),:]
+                filtered.append(filtered_region)
+            else: #empty region, we'll keep it for alignment later
+                filtered.append(region)
+        return filtered
+
     def filter_no_coverage(self):
-        self.x = self.x[self.x_c_v]
-        self.Lt = self.Lt[self.x_c_v]
-        self.thetaH = self.thetaH[self.x_c_v]
-        self.thetaL = self.thetaL[self.x_c_v]
-
-
-    def add_pseudocounts(self, list_of_arrays):
         '''
-        avoid prob 0 and 1 for logarithm
-        :param arr: array of probability
-        :return: array without 0 and 1
+        filter cpg sites with no information in atlas
+        :return:
         '''
-        for arr in list_of_arrays:
-            arr[arr==1] -= self.pseudocount
-            arr[arr==0] += self.pseudocount
-        return list_of_arrays
+        ref_cov = [~np.isnan(a).all(axis=0) for a in self.beta] #no data in ref, remove
+        self.beta =[self.beta[i][:,ref_cov[i]] for i in range(len(self.x))]
+        self.x = [self.x[i][:,ref_cov[i]] for i in range(len(self.x))]
+        has_cov = np.array([(~(x == NOVAL)).any() for x in self.x]) #empty regions, remove
+        self.beta = list(compress(self.beta, has_cov))
+        self.x = list(np.array(self.x)[has_cov])
+        if self.origins:
+            self.origins = list(compress(self.origins, has_cov))
 
-    def simplified_expectation(self, alpha):
+    def log_likelihood(self, alpha):
+        '''
+        logP(x|alpha, beta)
+        :param alpha: cell type proportions
+        :return: log likelihood
+        '''
+        ll = 0
+        for window in range(len(self.x)):
+            log_t1 = self.log_term1[window]
+            T, C = log_t1.shape
+            ll += np.sum(logsumexp(np.tile(np.log(alpha), (C, 1)).T + log_t1, axis=0))
+        return ll
+
+    def log_expectation(self, alpha):
+        '''
+        P(z=1|x, alpha_i)
+        :param alpha: cell type proportions
+        :return: probability of z
+        '''
         z = []
         for window in range(len(self.x)):
-            beta_tm = self.thetaH[window]*self.Lt[window][:, np.newaxis] + self.thetaL[window]*(1-self.Lt[window][:, np.newaxis])
-            a = self.x_c_m[window][np.newaxis, :, :] * beta_tm[:,np.newaxis, :]
-            b = self.x_c_u[window][np.newaxis, :, :] * (1 - beta_tm)[:,np.newaxis, :]
-            z_window = np.prod(a+b, axis=2)
-            z_window *= alpha[:,np.newaxis]
-            z_window /= np.sum(z_window, axis=0)
-            z.append(z_window)
+            T, C = self.log_term1[window].shape
+            a = np.tile(np.log(alpha), (C, 1)).T + self.log_term1[window]
+            b = logsumexp(a, axis=0)
+            log_z = a - np.tile(b, (T,1))
+            z.append(np.exp(log_z))
         return z
+
 
     def maximization(self, z):
         '''
-        argmax value of cel type proportions
-        :param z: cell type indicator
+        argmax value of cell type proportions
+        :param z: probability of cell type indicator
         :return: alpha
         '''
         all_z = np.hstack(z)
-        new_alpha = np.sum(all_z, axis=1) / self.c
+        new_alpha = np.sum(all_z, axis=1)
         new_alpha /= np.sum(new_alpha)
         return new_alpha
 
@@ -109,35 +176,32 @@ class READMeth:
         alpha_diff = np.mean(abs(new_alpha - self.alpha)) / np.mean(abs(self.alpha))
         return alpha_diff < self.convergence_criteria
 
-    def init_z(self):
-        self.z = []
-        for window in range(len(self.x)):
-            C = self.x[window].shape[0]
-            z = np.random.uniform(size=(self.t, C))
-            z /= np.sum(z, axis =0) #each read has to come from somewhere
-            self.z.append(z)
-
     def init_alpha(self):
+        # np.random.seed(123) ###
         alpha = np.random.uniform(size=(self.t))
         alpha /= np.sum(alpha)
-        self.alpha = alpha
+        self.alpha=alpha
 
     def two_step(self):
         '''
         perform EM for a given number of iterations
         :return: cell type proportions, log-likelihood
         '''
-        self.init_alpha()
-        i=0
+        if not self.alpha:
+            self.init_alpha()
+        # ll = []
         for i in range(self.num_iterations):
-            z = self.simplified_expectation(self.alpha)
+            # ll.append(self.get_ll())
+            z = self.log_expectation(self.alpha)
             new_alpha = self.maximization(z)
             if i and self.test_convergence(new_alpha):
                 break
 
             else:  # set current evaluation of alpha and gamma
                 self.alpha = new_alpha
+
+
         return self.alpha, i
 
-
-
+    def get_ll(self):
+        return self.log_likelihood(self.alpha)

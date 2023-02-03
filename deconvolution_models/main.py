@@ -31,7 +31,7 @@ sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/tests")
 from deconvolution_models.celfie import em as celfie
 from deconvolution_models.celfie_plus import CelfiePlus as celfie_plus
 from deconvolution_models.celfie_plus_reatlas import CelfiePlus as reatlas
-from deconvolution_models.epistate import READMeth as epistate
+from deconvolution_models.epistate import CelfiePlus as epistate
 from deconvolution_models.epistate_plus import READMeth as epistate_plus
 # from epistate_plus_simplified import READMeth as epistate_plus
 import numpy as np
@@ -160,7 +160,7 @@ class CelfiePlus(EMmodel):
         self.atlas_matrices = np.load(self.config["metadata_file"], allow_pickle=True)
 
     def deconvolute(self):
-        r = celfie_plus(self.matrices, self.atlas_matrices, num_iterations=self.config['num_iterations'],
+        r = celfie_plus(self.matrices, self.atlas_matrices, self.origins, num_iterations=self.config['num_iterations'],
                         convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.two_step()
 
@@ -236,10 +236,11 @@ class EpistatePlus(Epistate):
         self.name = "epistate-plus"
 
     def deconvolute(self):
-        r = epistate_plus(self.matrices, self.lambdas, self.thetaH, self.thetaL,
+        r = epistate_plus(self.matrices, self.lambdas, self.thetaH, self.thetaL,self.origins,
                      num_iterations=self.config["num_iterations"],
                    convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.em()
+        self.runner = r
 #%%
 
 @click.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
@@ -287,18 +288,15 @@ if __name__ == '__main__':
 #           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_thetas.bedgraph",
 #           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_merged_regions_file.bed",
 #           "epiformat":"old_epiread_A", "slop":0}
-#
-# config = {"data_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/43_rep9_data.npy",
-#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/43_rep9_metadata_reatlas.npy",
-#                     "num_iterations": 1000, "random_restarts": 1,
-#                     "stop_criterion":0.001, "summing":False
-#           }
-# r = Celfie(config)
-# r.run_model()
-
-# true_alpha = np.array([0.00307692, 0.00615385, 0.00923077, 0.01230769, 0.01538462,
-#        0.01846154, 0.02153846, 0.02461538, 0.02769231, 0.03076923,
-#        0.03384615, 0.03692308, 0.04      , 0.04307692, 0.04615385,
-#        0.04923077, 0.05230769, 0.05538462, 0.05846154, 0.06153846,
-#        0.06461538, 0.06769231, 0.07076923, 0.07384615, 0.07692308])
-# [self.q[i] >= self.q[i-1] for i in range(1, len(self.q))]
+# #
+# config = {"bedfile": True, "header": False,"cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
+#           "depth": 0.2, "num_iterations": 1000, "random_restarts": 1, "true_alpha": "[0.04761905,0.0952381 ,0.14285714,0.19047619,0.23809524,0.28571429]",
+#           "stop_criterion": 0.001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U25_pancreatic_1_rep13_mixture.epiread.gz"],
+#           "epiformat": "old_epiread_A", "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U25_pancreatic_atlas_over_regions.txt",
+#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U25_pancreatic_merged_regions_file.bed",
+#           "lambdas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U25_pancreatic_lambdas.bedgraph",
+#           "thetas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U25_pancreatic_thetas.bedgraph",
+#           "summing":True}
+# #%%
+# model = Celfie(config)
+# model.run_model()

@@ -199,12 +199,3 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
     )  # print ll for random restarts
     return alpha, gamma, ll, i
 
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# fig, ax = plt.subplots()
-# # plt.scatter(np.arange(1, i + 2), all_l, label="Q function")
-# plt.scatter(np.arange(1, i + 2), [a[0][1] for a in alphas], label="t1")
-# # plt.scatter(np.arange(1, i + 2), [a[1] for a in alphas], label="t2")
-# plt.xlabel("iteration")
-# plt.show()
-

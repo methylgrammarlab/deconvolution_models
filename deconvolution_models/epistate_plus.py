@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 from scipy.special import logsumexp
 import sys
@@ -12,7 +14,7 @@ class READMeth:
     '''
     pseudocount = 1e-10
 
-    def __init__(self, mixtures, lambda_t, theta_high, theta_low,
+    def __init__(self, mixtures, lambda_t, theta_high, theta_low, origins=None,
                   num_iterations=50, convergence_criteria=0.001, alpha=None):
         '''
         :param mixtures: data for deconvolution. c reads by m cpg sites
@@ -26,6 +28,7 @@ class READMeth:
         self.Lt = np.array(self.add_pseudocounts(lambda_t))
         self.thetaH = self.add_pseudocounts(theta_high)
         self.thetaL = self.add_pseudocounts(theta_low)
+        self.origins = origins
         self.filter_no_coverage()
 
         self.log_Lt =  [np.log(t) for t in self.Lt]
@@ -52,7 +55,8 @@ class READMeth:
         #remove empty rows
         row_filter = [(~(x == NOVAL)).any(axis=1) if x.any() else [] for x in self.x]
         self.x = [self.x[i][row_filter[i],:] for i in range(len(row_filter))]
-        # self.origins = [self.origins[i][row_filter[i]] for i in range(len(row_filter))]
+        if self.origins:
+            self.origins = [self.origins[i][row_filter[i]] for i in range(len(row_filter))]
 
         #remove empty cols
         col_filter = [(~(x == NOVAL)).any(axis=0) if x.any() else [] for x in self.x]
@@ -62,7 +66,8 @@ class READMeth:
         #remove empty regions
         region_filter = [(~(x == NOVAL)).any() for x in self.x]
         self.x = list(compress(self.x, region_filter))
-        # self.origins = list(compress(self.origins, region_filter))
+        if self.origins:
+            self.origins = list(compress(self.origins, region_filter))
 
         self.Lt = self.Lt[region_filter]
         self.thetaH =list(compress(self.thetaH, region_filter))
@@ -148,6 +153,7 @@ class READMeth:
 
 
     def init_alpha(self):
+        # np.random.seed(123)
         if self.alpha is None:
             alpha = np.random.uniform(size=(self.t))
             alpha /= np.sum(alpha)
@@ -203,5 +209,17 @@ class READMeth:
                 prev_ll = new_ll
         return self.alpha, i
 #%%
-
-
+# filt = np.array([np.argmin(x) for x in self.Lt])==1
+# actual_duct = np.array([np.sum(a=="Duct") for a in self.origins])[filt]
+# predicted_duct = np.array([np.nanmean(a[1,:])*a.shape[1] for a in self.z])[filt]
+# diff = [predicted_duct[i]-actual_duct[i] for i in range(len(actual_duct))]
+#
+# order = np.argsort(diff)
+#
+# import pandas as pd
+# import os
+# df = pd.DataFrame(self.x[225])
+# dd = pd.DataFrame(self.z[225].T, columns=["Delta", "Duct", "Acinar", "Endothel", "Alpha", "Beta"])
+# df["source"] = self.origins[225]
+# res = pd.merge(df, dd, left_index=True, right_index=True)
+# res.to_csv( "/Users/ireneu/PycharmProjects/bimodal_detector/plots/U250_pancreatic_under_2_1_rep4_225.csv", index=False)
