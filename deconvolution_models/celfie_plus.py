@@ -54,7 +54,7 @@ class CelfiePlus:
     Read-based EM Algorithm for Deconvolution of Methylation sequencing
     '''
 
-    def __init__(self, mixtures, beta, num_iterations=50, convergence_criteria=0.001, alpha=None):
+    def __init__(self, mixtures, beta, origins=None, num_iterations=50, convergence_criteria=0.001, alpha=None):
         '''
         :param mixtures: data for deconvolution. c reads by m cpg sites
         :param beta: methylation probability for reference atlas
@@ -64,6 +64,8 @@ class CelfiePlus:
         '''
         self.x = self.filter_empty_rows(mixtures)
         self.beta = [self.add_pseudocounts(x) for x in beta]
+        self.origins = origins
+
         self.filter_no_coverage()
         # self.x = [length_one(self.x[0])]
         # self.x = [shuffle(self.x[0])]
@@ -131,6 +133,8 @@ class CelfiePlus:
         has_cov = np.array([(~(x == NOVAL)).any() for x in self.x]) #empty regions, remove
         self.beta = list(compress(self.beta, has_cov))
         self.x = list(np.array(self.x)[has_cov])
+        if self.origins:
+            self.origins = list(compress(self.origins, has_cov))
 
     def log_likelihood(self, alpha):
         '''
@@ -176,12 +180,13 @@ class CelfiePlus:
         return alpha_diff < self.convergence_criteria
 
     def init_alpha(self):
+        # np.random.seed(123)
         alpha = np.random.uniform(size=(self.t))
         alpha /= np.sum(alpha)
         self.alpha=alpha
 
     def two_step(self):
-        '''
+        '''sum
         perform EM for a given number of iterations
         :return: cell type proportions, log-likelihood
         '''
