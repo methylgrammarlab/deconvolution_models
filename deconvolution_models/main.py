@@ -218,7 +218,7 @@ class Epistate(CelfiePlus): #TODO: load lambdas and thetas from fil
                 thetaH.append(thetaH_order[str(interval)])
                 thetaL.append(thetaL_order[str(interval)])
                 cpgs.append(self.cpgs[i])
-                origins.append(self.origins[i])
+                # origins.append(self.origins[i])
                 matrices.append(self.matrices[i])
         self.interval_order, self.lambdas, self.thetaH, self.thetaL, self.cpgs, self.matrices, self.origins =\
         interval_order, lambdas, thetaH, thetaL, cpgs, matrices, origins
@@ -291,11 +291,11 @@ if __name__ == '__main__':
 # #
 # config = {"bedfile": True, "header": False,"cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
 #           "depth": 0.2, "num_iterations": 1000, "random_restarts": 1, "true_alpha": "[0.04761905,0.0952381 ,0.14285714,0.19047619,0.23809524,0.28571429]",
-#           "stop_criterion": 0.001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U25_pancreatic_1_rep13_mixture.epiread.gz"],
-#           "epiformat": "old_epiread_A", "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U25_pancreatic_atlas_over_regions.txt",
-#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U25_pancreatic_merged_regions_file.bed",
-#           "lambdas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U25_pancreatic_lambdas.bedgraph",
-#           "thetas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U25_pancreatic_thetas.bedgraph",
+#           "stop_criterion": 0.001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U250_pancreatic_7_rep37_mixture.epiread.gz"],
+#           "epiformat": "old_epiread_A", "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U250_pancreatic_atlas_over_regions.txt",
+#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U250_pancreatic_merged_regions_file.bed",
+#           "lambdas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U250_pancreatic_lambdas.bedgraph",
+#           "thetas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/020223_U250_pancreatic_thetas.bedgraph",
 #           "summing":True}
 # #%%
 # model = Celfie(config)
