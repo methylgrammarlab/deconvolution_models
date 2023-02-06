@@ -159,16 +159,16 @@ class READMeth:
             alpha /= np.sum(alpha)
             self.alpha = alpha
 
-    def init_mu_no_log(self):
-        mu = []
-        for window in range(len(self.thetaH)):
-            t_c = np.ones((self.alpha.shape[0], self.x_c_m[window].shape[0]))
-            #TODO: there's probably a nice linear algebra way to do this
-            high = np.sum(np.exp(self.log_x_given_H[window]) * (self.alpha*self.Lt[window]*t_c.T).T, axis=0)
-            low = np.sum(np.exp(self.log_x_given_L[window]) * (self.alpha*(1-self.Lt[window])*t_c.T).T, axis=0)
-            new_mu = high/(high+low)
-            mu.append(new_mu)
-        return mu
+    # def init_mu_no_log(self):
+    #     mu = []
+    #     for window in range(len(self.thetaH)):
+    #         t_c = np.ones((self.alpha.shape[0], self.x_c_m[window].shape[0]))
+    #         #TODO: there's probably a nice linear algebra way to do this
+    #         high = np.sum(np.exp(self.log_x_given_H[window]) * (self.alpha*self.Lt[window]*t_c.T).T, axis=0)
+    #         low = np.sum(np.exp(self.log_x_given_L[window]) * (self.alpha*(1-self.Lt[window])*t_c.T).T, axis=0)
+    #         new_mu = high/(high+low)
+    #         mu.append(new_mu)
+    #     return mu
 
     def maximization(self, z):
         '''
