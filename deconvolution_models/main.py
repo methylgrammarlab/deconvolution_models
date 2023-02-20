@@ -205,7 +205,7 @@ class CelfiePlus(EMmodel):
         self.atlas_matrices = np.load(self.config["metadata_file"], allow_pickle=True)
 
     def deconvolute(self):
-        r = celfie_plus(self.matrices, self.atlas_matrices, self.origins, num_iterations=self.config['num_iterations'],
+        r = celfie_plus(self.matrices, self.atlas_matrices, origins=None, num_iterations=self.config['num_iterations'],
                         convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.two_step()
 
