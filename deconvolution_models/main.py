@@ -283,7 +283,7 @@ class EpistatePlus(Epistate):
         self.name = "epistate-plus"
 
     def deconvolute(self):
-        r = epistate_plus(self.matrices, self.lambdas, self.thetaH, self.thetaL,self.origins,
+        r = epistate_plus(self.matrices, self.lambdas, self.thetaH, self.thetaL,origins=None,
                      num_iterations=self.config["num_iterations"],
                    convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.em()
