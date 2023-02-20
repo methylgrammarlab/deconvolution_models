@@ -33,11 +33,12 @@ from deconvolution_models.celfie_plus import CelfiePlus as celfie_plus
 from deconvolution_models.celfie_plus_reatlas import CelfiePlus as reatlas
 from deconvolution_models.epistate import CelfiePlus as epistate
 from deconvolution_models.epistate_plus import READMeth as epistate_plus
+from deconvolution_models.UXM import uxm
 # from epistate_plus_simplified import READMeth as epistate_plus
 import numpy as np
 from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader, EpiAtlasReader
 from epiread_tools.naming_conventions import *
-from epiread_tools.em_utils import calc_coverage, calc_methylated
+from epiread_tools.em_utils import calc_coverage, calc_methylated, calc_percent_U
 
 
 class NotImplementedError(Exception):
@@ -138,6 +139,46 @@ class Celfie(EMmodel):
             restarts.append((ll, estimated_alpha, i))
         ll_max, alpha_max, i_max = max(restarts)
         self.alpha, self.i = alpha_max.flatten(), i_max
+
+class UXM(EMmodel):
+    def __init__(self, config):
+        super().__init__(config)
+        self.U = [] #percent u
+        self.N = [] #number of fragments = weights
+        self.i = np.nan
+
+    def read_mixture(self):
+        reader = self.reader(self.config)
+        self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
+        self.calc_u()
+
+    def calc_u(self):
+        for mat in self.matrices:
+            x_c_v = (mat != NOVAL)
+            # filter short reads
+            len_filt = (np.sum(x_c_v, axis=1).flatten() > self.config["min_length"])
+            small = mat[len_filt,:]
+            if not small.shape[0]:  # empty region
+                self.U.append(0)
+                self.N.append(0)
+            else:
+                self.U.append(calc_percent_U(small, self.config["u_threshold"]))
+                self.N.append(small.shape[0])
+
+    def read_atlas(self):
+        #sort by interval order
+        pass
+
+    def load_npy(self):
+        self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
+        self.calc_u()
+        self.atlas = np.load(self.config["metadata_file"], allow_pickle=True)
+
+    def deconvolute(self):
+        if self.config["weights"]:
+            self.alpha = uxm(np.vstack(self.atlas), self.U, self.N)
+        else:
+            self.alpha = uxm(np.vstack(self.atlas), self.U)
 
 
 class CelfiePlus(EMmodel):
@@ -306,3 +347,20 @@ if __name__ == '__main__':
 # #%%
 # model = CelfiePlus(config)
 # model.run_model()
+# import numpy as  np
+# a = np.arange(1,26)
+# b=(a/np.sum(a))
+# config = {"bedfile": True, "header": False,"cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
+#           "depth": 10, "num_iterations": 1000, "random_restarts": 1, "true_alpha": np.array2string(b, max_line_width=np.inf, separator=","),
+#           "stop_criterion": 0.001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_1_rep46_mixture.epiread.gz"],
+#           "epiformat": "old_epiread_A", "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_atlas_over_regions.txt",
+#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_merged_regions_file.bed",
+#           "lambdas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__lambdas.bedgraph",
+#           "thetas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__thetas.bedgraph",
+#           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_uxm_v1.npy",
+#           "u_threshold":0.25,"min_length":4,"weights":False,
+#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_uxm_v1_metadata_uxm.npy",
+#           "summing":False}
+# #%%
+# model = UXM(config)
+# model.run_from_npy()
