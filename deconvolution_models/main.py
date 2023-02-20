@@ -146,6 +146,9 @@ class UXM(EMmodel):
         self.U = [] #percent u
         self.N = [] #number of fragments = weights
         self.i = np.nan
+        self.min_length = 4 #TODO: change back
+        if "min_length" in config:
+            self.min_length = self.config["min_length"]
 
     def read_mixture(self):
         reader = self.reader(self.config)
@@ -156,7 +159,7 @@ class UXM(EMmodel):
         for mat in self.matrices:
             x_c_v = (mat != NOVAL)
             # filter short reads
-            len_filt = (np.sum(x_c_v, axis=1).flatten() > self.config["min_length"])
+            len_filt = (np.sum(x_c_v, axis=1).flatten() >= self.min_length)
             small = mat[len_filt,:]
             if not small.shape[0]:  # empty region
                 self.U.append(0)
