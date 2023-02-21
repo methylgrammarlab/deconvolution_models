@@ -28,11 +28,11 @@ def uxm(atlas, samp, weights=None):
     :param weights: optional weight per region
     :return: the mixture coefficients
     """
-    #TODO: remove missing sites from both sample and atlas
+    #TODO: remove missing sites from both sample and atlas?
 
-    if weights is not None: #TODO:fix
-        ready_samp = [s*weights[i] for (i, s) in enumerate(samp)]
-        ready_atlas = [s*weights[i] for (i, s) in enumerate(atlas)]
+    if weights is not None:
+        ready_samp = np.multiply(samp, np.array(weights).reshape(1, -1)).flatten()
+        ready_atlas = np.multiply(atlas, np.array(weights).reshape(-1,1))
     else:
         ready_samp = samp
         ready_atlas = atlas

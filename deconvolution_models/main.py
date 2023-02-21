@@ -145,7 +145,7 @@ class UXM(EMmodel):
         super().__init__(config)
         self.U = [] #percent u
         self.N = [] #number of fragments = weights
-        self.i = np.nan
+        self.i = 0
         self.min_length = 4 #TODO: change back
         if "min_length" in config:
             self.min_length = self.config["min_length"]
@@ -360,9 +360,9 @@ if __name__ == '__main__':
 #           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_merged_regions_file.bed",
 #           "lambdas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__lambdas.bedgraph",
 #           "thetas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__thetas.bedgraph",
-#           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_uxm_v1.npy",
-#           "u_threshold":0.25,"min_length":4,"weights":False,
-#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/test_uxm_v1_metadata_uxm.npy",
+#           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/10_rep0_data.npy",
+#           "u_threshold":0.25,"min_length":4,"weights":True,
+#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/10_rep0_metadata_uxm.npy",
 #           "summing":False}
 # #%%
 # model = UXM(config)
