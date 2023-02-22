@@ -173,9 +173,10 @@ class UXM(EMmodel):
 
     def sort_intervals(self):
         atlas_to_index = {str(v): k for k, v in dict(enumerate(self.atlas_intervals)).items()}
-        atlas_order = [atlas_to_index[str(x)] for x in self.interval_order]
-        self.atlas_mat = self.atlas_mat[np.array(atlas_order),:]
-        self.atlas_intervals = self.atlas_intervals[atlas_order]
+        atlas_order = np.array([atlas_to_index[str(x)] for x in self.interval_order])
+        self.atlas_mat = self.atlas_mat[atlas_order,:]
+        reorder = [self.atlas_intervals[i] for i in atlas_order]
+        self.atlas_intervals = reorder
 
     def load_npy(self):
         self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
