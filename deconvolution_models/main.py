@@ -168,26 +168,26 @@ class UXM(EMmodel):
 
     def read_atlas(self):
         reader = UXMAtlasReader(self.config)
-        self.atlas_intervals, self.atlas_mat = reader.read()
+        self.atlas_intervals, self.atlas = reader.read()
         self.sort_intervals()
 
     def sort_intervals(self):
         atlas_to_index = {str(v): k for k, v in dict(enumerate(self.atlas_intervals)).items()}
         atlas_order = np.array([atlas_to_index[str(x)] for x in self.interval_order])
-        self.atlas_mat = self.atlas_mat[atlas_order,:]
+        self.atlas = self.atlas[atlas_order, :]
         reorder = [self.atlas_intervals[i] for i in atlas_order]
         self.atlas_intervals = reorder
 
     def load_npy(self):
         self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
         self.calc_u()
-        self.atlas = np.load(self.config["metadata_file"], allow_pickle=True)
+        self.atlas = np.vstack(np.load(self.config["metadata_file"], allow_pickle=True))
 
     def deconvolute(self):
         if self.config["weights"]:
-            self.alpha = uxm(np.vstack(self.atlas), self.U, self.N)
+            self.alpha = uxm(self.atlas, self.U, self.N)
         else:
-            self.alpha = uxm(np.vstack(self.atlas), self.U)
+            self.alpha = uxm(self.atlas, self.U)
 
 
 class CelfiePlus(EMmodel):
