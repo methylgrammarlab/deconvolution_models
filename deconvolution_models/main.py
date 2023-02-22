@@ -36,7 +36,7 @@ from deconvolution_models.epistate_plus import READMeth as epistate_plus
 from deconvolution_models.UXM import uxm
 # from epistate_plus_simplified import READMeth as epistate_plus
 import numpy as np
-from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader, EpiAtlasReader
+from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader, EpiAtlasReader, UXMAtlasReader
 from epiread_tools.naming_conventions import *
 from epiread_tools.em_utils import calc_coverage, calc_methylated, calc_percent_U
 
@@ -146,9 +146,7 @@ class UXM(EMmodel):
         self.U = [] #percent u
         self.N = [] #number of fragments = weights
         self.i = 0
-        self.min_length = 4 #TODO: change back
-        if "min_length" in config:
-            self.min_length = self.config["min_length"]
+        self.min_length = self.config["min_length"]
 
     def read_mixture(self):
         reader = self.reader(self.config)
@@ -157,20 +155,27 @@ class UXM(EMmodel):
 
     def calc_u(self):
         for mat in self.matrices:
-            x_c_v = (mat != NOVAL)
+            x_c_v = np.array(mat.todense() != NOVAL)
             # filter short reads
-            len_filt = (np.sum(x_c_v, axis=1).flatten() >= self.min_length)
-            small = mat[len_filt,:]
-            if not small.shape[0]:  # empty region
+            len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
+            if not np.sum(len_filt):  # empty region
                 self.U.append(0)
                 self.N.append(0)
             else:
+                small = mat[len_filt, :]
                 self.U.append(calc_percent_U(small, self.config["u_threshold"]))
                 self.N.append(small.shape[0])
 
     def read_atlas(self):
-        #sort by interval order
-        pass
+        reader = UXMAtlasReader(self.config)
+        self.atlas_intervals, self.atlas_mat = reader.read()
+        self.sort_intervals()
+
+    def sort_intervals(self):
+        atlas_to_index = {str(v): k for k, v in dict(enumerate(self.atlas_intervals)).items()}
+        atlas_order = np.array([atlas_to_index[str(x)] for x in self.interval_order])
+        self.atlas_mat = self.atlas_mat[atlas_order,:]
+        self.atlas_intervals = self.atlas_intervals[atlas_order]
 
     def load_npy(self):
         self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
@@ -357,13 +362,14 @@ if __name__ == '__main__':
 #           "depth": 10, "num_iterations": 1000, "random_restarts": 1, "true_alpha": np.array2string(b, max_line_width=np.inf, separator=","),
 #           "stop_criterion": 0.001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_1_rep46_mixture.epiread.gz"],
 #           "epiformat": "old_epiread_A", "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_atlas_over_regions.txt",
+#           "percent_u":"/Users/ireneu/PycharmProjects/bimodal_detector/results/test_uxm_percent_U.bedgraph",
 #           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_merged_regions_file.bed",
 #           "lambdas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__lambdas.bedgraph",
 #           "thetas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__thetas.bedgraph",
 #           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/10_rep0_data.npy",
-#           "u_threshold":0.25,"min_length":4,"weights":True,
+#           "u_threshold":0.25,"min_length":4,"weights":True, "cell_types": list(range(6)),
 #           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/10_rep0_metadata_uxm.npy",
 #           "summing":False}
 # #%%
 # model = UXM(config)
-# model.run_from_npy()
+# model.run_model()
