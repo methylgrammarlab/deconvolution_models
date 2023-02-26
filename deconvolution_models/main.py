@@ -195,7 +195,7 @@ class CelfiePlus(EMmodel):
     def __init__(self, config):
         super().__init__(config)
         self.name = "celfie-plus"
-        self.min_length = self.config["min_length"] ###
+        # self.min_length = self.config["min_length"] ###
         if self.config['random_restarts'] > 1:
             raise NotImplementedError("random_restarts", self.name)
 
@@ -209,17 +209,17 @@ class CelfiePlus(EMmodel):
         atlas_intervals, atlas_matrices = reader.meth_cov_to_beta_matrices()
         interval_to_mat = dict(zip([str(x) for x in atlas_intervals], atlas_matrices))
         self.atlas_matrices = [interval_to_mat[str(x)] for x in self.interval_order]
-        #########
-        new = []
-        new_ref = []
-        for i, mat in enumerate(self.matrices):
-            x_c_v = np.array(mat != NOVAL)
-            # filter short reads
-            len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
-            if np.sum(len_filt):
-                new.append(mat[len_filt,:])
-                new_ref.append(self.atlas_matrices[i])
-        self.matrices, self.atlas_matrices = new, new_ref
+        # #########
+        # new = []
+        # new_ref = []
+        # for i, mat in enumerate(self.matrices):
+        #     x_c_v = np.array(mat != NOVAL)
+        #     # filter short reads
+        #     len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
+        #     if np.sum(len_filt):
+        #         new.append(mat[len_filt,:])
+        #         new_ref.append(self.atlas_matrices[i])
+        # self.matrices, self.atlas_matrices = new, new_ref
 
     def load_npy(self):
         self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
