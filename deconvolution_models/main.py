@@ -195,6 +195,7 @@ class CelfiePlus(EMmodel):
     def __init__(self, config):
         super().__init__(config)
         self.name = "celfie-plus"
+        self.min_length = self.config["min_length"] ###
         if self.config['random_restarts'] > 1:
             raise NotImplementedError("random_restarts", self.name)
 
@@ -202,6 +203,17 @@ class CelfiePlus(EMmodel):
         reader = self.reader(self.config)
         self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
         self.matrices = [x.toarray() for x in self.matrices]
+        #########
+        new = []
+        for mat in self.matrices:
+            x_c_v = np.array(mat != NOVAL)
+            # filter short reads
+            len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
+            if not np.sum(len_filt):
+                new.append(np.array([]))
+            else:
+                new.append(mat[len_filt,:])
+        self.matrices = new
 
     def read_atlas(self):
         reader = AtlasReader(self.config)
