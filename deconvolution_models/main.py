@@ -203,23 +203,23 @@ class CelfiePlus(EMmodel):
         reader = self.reader(self.config)
         self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
         self.matrices = [x.toarray() for x in self.matrices]
-        #########
-        new = []
-        for mat in self.matrices:
-            x_c_v = np.array(mat != NOVAL)
-            # filter short reads
-            len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
-            if not np.sum(len_filt):
-                new.append(np.array([]))
-            else:
-                new.append(mat[len_filt,:])
-        self.matrices = new
 
     def read_atlas(self):
         reader = AtlasReader(self.config)
         atlas_intervals, atlas_matrices = reader.meth_cov_to_beta_matrices()
         interval_to_mat = dict(zip([str(x) for x in atlas_intervals], atlas_matrices))
         self.atlas_matrices = [interval_to_mat[str(x)] for x in self.interval_order]
+        #########
+        new = []
+        new_ref = []
+        for i, mat in enumerate(self.matrices):
+            x_c_v = np.array(mat != NOVAL)
+            # filter short reads
+            len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
+            if np.sum(len_filt):
+                new.append(mat[len_filt,:])
+                new_ref.append(self.atlas_matrices[i])
+        self.matrices, self.atlas_matrices = new, new_ref
 
     def load_npy(self):
         self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
