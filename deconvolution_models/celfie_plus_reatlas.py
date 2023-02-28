@@ -87,10 +87,10 @@ class CelfiePlus:
         for i in range(len(a)):
             new_a = a[i].copy()
             new_a_depths = a_depths[i].copy()
-            new_a[a[i]==0] += 1
-            new_a_depths[a[i]==0] += 2
-            new_a[a[i]==a_depths[i]] += 1
-            new_a_depths[a[i]==a_depths[i]] += 2
+            new_a[a[i]==0] += 0.001
+            new_a_depths[a[i]==0] += 0.002
+            new_a[a[i]==a_depths[i]] += 0.001
+            new_a_depths[a[i]==a_depths[i]] += 0.002
             res.append(new_a)
             res_depths.append(new_a_depths)
         return res, res_depths
