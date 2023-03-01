@@ -175,8 +175,10 @@ def em(x, x_depths, y, y_depths, num_iterations, convergence_criteria):
     # intialize gamma to reference values
     gamma = y / y_depths
     i = 0
+    # old = []
     # perform EM for a given number of iterations
     for i in range(num_iterations):
+        # old.append(alpha[0][0])
         p0, p1 = expectation(gamma, alpha)
         a, g = maximization(p0, p1, x, x_depths, y, y_depths)
 

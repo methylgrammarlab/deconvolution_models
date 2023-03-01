@@ -96,16 +96,17 @@ class CelfiePlus:
             t1.append((np.matmul(x_c_m, log_beta) + np.matmul(x_c_u, log_one_minus_beta)).T)
         return t1
 
-    def add_pseudocounts(self, arr): #TODO: fix
+    def add_pseudocounts(self, arr):
         '''
         move slightly away from 1 and 0
         :param arr: numpy array
         :return: changes array inplace
         '''
-        pc = 1e-10
-        arr[arr==0] += pc
-        arr[arr==1] -= pc
-        return arr
+        pc = 1e-100
+        new_arr = arr.copy()
+        new_arr[arr==0] += pc
+        new_arr[arr==1] -= pc
+        return new_arr
 
     def filter_empty_rows(self, reads):
         '''
@@ -192,17 +193,19 @@ class CelfiePlus:
         '''
         if not self.alpha:
             self.init_alpha()
+        # old = []
         # ll = []
         for i in range(self.num_iterations):
+            # old.append(self.alpha[0])
             # ll.append(self.get_ll())
             z = self.log_expectation(self.alpha)
             new_alpha = self.maximization(z)
             if i and self.test_convergence(new_alpha):
                 break
+                # pass
 
             else:  # set current evaluation of alpha and gamma
                 self.alpha = new_alpha
-
 
         return self.alpha, i
 
