@@ -383,10 +383,10 @@ if __name__ == '__main__':
 #           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/results/280223_2groups_merged_regions_file.bed",
 #           # "lambdas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__lambdas.bedgraph",
 #           # "thetas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__thetas.bedgraph",
-#           # "data_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/10_rep0_data.npy",
+#           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_data.npy",
 #           "u_threshold":0.25,"min_length":4,"weights":False, "cell_types": list(range(2)),
-#           # "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/10_rep0_metadata_uxm.npy",
+#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_metadata_celfie-plus.npy",
 #           "summing":False}
 # #%%
-# model = UXM(config)
-# model.run_model()
+# model = CelfiePlus(config)
+# model.run_from_npy()
