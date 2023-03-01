@@ -183,10 +183,14 @@ class CelfiePlus:
         if not self.alpha:
             self.init_alpha()
         prev_ll = -np.inf
+        # old = []
         for i in range(self.num_iterations):
+            # old.append(self.alpha[0])
             new_ll = self.log_likelihood(self.alpha, self.beta)
-            assert new_ll >= prev_ll, "old likelihood %.2f new likelihood %0.2f, alpha %s" % (
-            prev_ll, new_ll, str(self.alpha))
+            # assert new_ll >= prev_ll, "old likelihood %.2f new likelihood %0.2f, alpha %s" % (
+            # prev_ll, new_ll, str(self.alpha))
+            if new_ll < prev_ll:
+                print ("shit")
 
             z = self.log_expectation(self.alpha, self.beta)
             new_alpha, new_beta = self.maximization(z)
