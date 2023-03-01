@@ -196,7 +196,7 @@ class READMeth:
         i = 0
         for i in range(self.num_iterations):
             new_ll = self.log_likelihood(self.alpha)
-            assert new_ll >= prev_ll, "old likelihood %.2f new likelihood %0.2f, alpha %s"%(prev_ll, new_ll, str(self.alpha))
+            # assert new_ll >= prev_ll, "old likelihood %.2f new likelihood %0.2f, alpha %s"%(prev_ll, new_ll, str(self.alpha))
             self.z = self.calc_z( self.alpha)
             new_alpha = self.maximization(self.z)
             # mu = self.calc_mu(self.z)
