@@ -185,11 +185,11 @@ class UXM(EMmodel):
         self.atlas = np.vstack(np.load(self.config["metadata_file"], allow_pickle=True))
 
     def deconvolute(self):
+        self.i = np.sum(self.N)
         if self.config["weights"]:
             self.alpha = uxm(self.atlas, self.U, self.N)
         else:
             self.alpha = uxm(self.atlas, self.U)
-            print("hi")
 
 
 class CelfiePlus(EMmodel):
