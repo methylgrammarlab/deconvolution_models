@@ -362,8 +362,8 @@ if __name__ == '__main__':
 #           "epiformat":"old_epiread_A", "slop":0}
 # #
 # config = {"bedfile": True, "header": False,"cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#           "depth": 0.2, "num_iterations": 1000, "random_restarts": 1, "true_alpha": "[0.04761905,0.0952381 ,0.14285714,0.19047619,0.23809524,0.28571429]",
-#           "stop_criterion": 0.001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_1_rep46_mixture.epiread.gz"],
+#           "depth": 0.2, "num_iterations": 10000, "random_restarts": 1, "true_alpha": "[0.04761905,0.0952381 ,0.14285714,0.19047619,0.23809524,0.28571429]",
+#           "stop_criterion": 0.00001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_1_rep46_mixture.epiread.gz"],
 #           "epiformat": "old_epiread_A", "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_atlas_over_regions.txt",
 #           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_merged_regions_file.bed",
 #           "lambdas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__lambdas.bedgraph",
@@ -373,20 +373,20 @@ if __name__ == '__main__':
 # model = CelfiePlus(config)
 # model.run_model()
 # import numpy as  np
-# a = np.arange(1,26)
+# a = np.arange(1,32)
 # b=(a/np.sum(a))
 # config = {"bedfile": True, "header": False,"cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#           "depth": 10, "num_iterations": 10000, "random_restarts": 1, "true_alpha": "",
-#           "stop_criterion": 0.0000000001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/results/280223_2groups_7_rep9_mixture.epiread.gz"],
-#           "epiformat": "old_epiread_A", "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/results/280223_2groups_atlas_over_regions.txt",
-#           "percent_u":"/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/results/280223_2groups_percent_U.bedgraph",
-#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/results/280223_2groups_merged_regions_file.bed",
+#           "depth": 10, "num_iterations": 10000, "random_restarts": 1, "true_alpha": b,
+#           "stop_criterion": 0.00001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/070323_U25_1_rep34_mixture.epiread.gz"],
+#           "epiformat": "old_epiread_A", "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/070323_U25_atlas_over_regions.txt",
+#           "percent_u":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/070323_U25_percent_U.bedgraph",
+#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/070323_U25_merged_regions_file.bed",
 #           # "lambdas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__lambdas.bedgraph",
 #           # "thetas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__thetas.bedgraph",
 #           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_data.npy",
-#           "u_threshold":0.25,"min_length":4,"weights":False, "cell_types": list(range(2)),
+#           "u_threshold":0.25,"min_length":4,"weights":False, "cell_types": list(range(31)),
 #           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_metadata_celfie-plus.npy",
 #           "summing":False}
 # #%%
-# model = CelfiePlus(config)
-# model.run_from_npy()
+# model = UXM(config)
+# model.run_model()
