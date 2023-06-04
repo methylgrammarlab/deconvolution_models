@@ -32,7 +32,7 @@ from itertools import compress
 from scipy.special import logsumexp
 
 
-class CelfiePlus:
+class CelfieISHReatlas:
     '''
     Read-based EM Algorithm for Deconvolution of Methylation sequencing
     '''
@@ -190,7 +190,7 @@ class CelfiePlus:
             # assert new_ll >= prev_ll, "old likelihood %.2f new likelihood %0.2f, alpha %s" % (
             # prev_ll, new_ll, str(self.alpha))
             if new_ll < prev_ll:
-                print ("shit")
+                print ("something went terribly wrong")
 
             z = self.log_expectation(self.alpha, self.beta)
             new_alpha, new_beta = self.maximization(z)

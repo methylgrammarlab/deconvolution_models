@@ -8,11 +8,10 @@ from epiread_tools.naming_conventions import *
 from itertools import compress
 
 
-class READMeth:
+class Epistate:
     '''
     Read-based EM Algorithm for Deconvolution of Methylation sequencing
     '''
-    pseudocount = 1e-10
 
     def __init__(self, mixtures, lambda_t, theta_high, theta_low, origins=None,
                   num_iterations=50, convergence_criteria=0.001, alpha=None):

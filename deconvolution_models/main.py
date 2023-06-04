@@ -29,12 +29,11 @@ sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 # sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/deconvolution_models")
 sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/tests")
 from deconvolution_models.celfie import em as celfie
-from deconvolution_models.celfie_plus import CelfiePlus as celfie_plus
-from deconvolution_models.celfie_plus_reatlas import CelfiePlus as reatlas
-from deconvolution_models.epistate import CelfiePlus as epistate
-from deconvolution_models.epistate_plus import READMeth as epistate_plus
+from deconvolution_models.celfieish import CelfieISH as celfie_ish
+from deconvolution_models.celfie_plus_reatlas import CelfieISHReatlas as reatlas
+from deconvolution_models.epistate import epistate as epistate
+from deconvolution_models.epistate_plus import Epistate as epistate_plus
 from deconvolution_models.UXM import uxm
-# from epistate_plus_simplified import READMeth as epistate_plus
 import numpy as np
 from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader, EpiAtlasReader, UXMAtlasReader
 from epiread_tools.naming_conventions import *
@@ -228,8 +227,8 @@ class CelfiePlus(EMmodel):
         self.atlas_matrices = np.load(self.config["metadata_file"], allow_pickle=True)
 
     def deconvolute(self):
-        r = celfie_plus(self.matrices, self.atlas_matrices, origins=None, num_iterations=self.config['num_iterations'],
-                        convergence_criteria=self.config['stop_criterion'])
+        r = celfie_ish(self.matrices, self.atlas_matrices, origins=None, num_iterations=self.config['num_iterations'],
+                       convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.two_step()
 
 class ReAtlas(CelfiePlus):
@@ -255,7 +254,7 @@ class ReAtlas(CelfiePlus):
         self.alpha, self.i = r.two_step()
 
 
-class Epistate(CelfiePlus): #TODO: load lambdas and thetas from fil
+class Epistate(CelfiePlus): #TODO: load lambdas and thetas from file
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = "epistate"

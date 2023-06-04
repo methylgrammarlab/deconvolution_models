@@ -33,7 +33,7 @@ from itertools import compress
 from scipy.special import logsumexp
 
 
-class CelfiePlus:
+class epistate:
     '''
     Read-based EM Algorithm for Deconvolution of Methylation sequencing
     '''
