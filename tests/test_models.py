@@ -28,9 +28,9 @@ import pytest
 from epiread_tools.naming_conventions import *
 import numpy as np
 from deconvolution_models.celfie import em as celfie
-from deconvolution_models.celfie_plus import CelfiePlus as celfie_plus
+from deconvolution_models.celfieish import CelfieISH as celfie_plus
 from deconvolution_models.epistate import READMeth as epistate
-from deconvolution_models.epistate_plus import READMeth as epistate_plus
+from deconvolution_models.epistate_plus import Epistate as epistate_plus
 
 @pytest.fixture
 def plus_deterministic_input():
