@@ -24,7 +24,6 @@ SOFTWARE.
 
 import setuptools
 import os
-TOKEN_VALUE = os.getenv('EXPORTED_VAR_WITH_TOKEN')
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -43,9 +42,9 @@ setuptools.setup(
     },
     license='MIT',
     packages=['deconvolution_models'],
-    install_requires=['numpy', 'pandas', 'scipy', 'bottleneck', "Click", "pytest"],
-                      # f"epiread-tools @ git+https://{TOKEN_VALUE}@github.com/methylgrammarlab/epiread-tools.git"
-                      # ],
+    install_requires=['numpy', 'pandas', 'scipy', 'bottleneck', "Click", "pytest",
+                      f"epiread-tools @ git+https://github.com/methylgrammarlab/epiread-tools.git",
+                      ],
     include_package_data=True,
     entry_points={
     "console_scripts":[
