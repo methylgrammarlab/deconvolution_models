@@ -93,7 +93,7 @@ class CelfiePlus:
             x_c_u = self.x_c_u[window].astype(int)
             log_beta = np.nan_to_num(self.log_beta[window].T)
             log_one_minus_beta = np.nan_to_num(self.log_one_minus_beta[window].T)
-            t1.append((np.matmul(x_c_m, log_beta) + np.matmul(x_c_u, log_one_minus_beta)).T)
+            t1.append((np.matmul(x_c_m, log_beta) + np.matmul(x_c_u, log_one_minus_beta)).T) #TODO: fix overflow
         return t1
 
     def add_pseudocounts(self, arr):
@@ -102,7 +102,7 @@ class CelfiePlus:
         :param arr: numpy array
         :return: changes array inplace
         '''
-        pc = 1e-100
+        pc = 1e-10
         new_arr = arr.copy()
         new_arr[arr==0] += pc
         new_arr[arr==1] -= pc
@@ -194,10 +194,10 @@ class CelfiePlus:
         if not self.alpha:
             self.init_alpha()
         # old = []
-        # ll = []
+        ll = []
         for i in range(self.num_iterations):
             # old.append(self.alpha[0])
-            # ll.append(self.get_ll())
+            ll.append(self.get_ll())
             z = self.log_expectation(self.alpha)
             new_alpha = self.maximization(z)
             if i and self.test_convergence(new_alpha):
