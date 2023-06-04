@@ -373,11 +373,10 @@ if __name__ == '__main__':
 # model = CelfiePlus(config)
 # model.run_model()
 # import numpy as  np
-# a = np.arange(1,32)
-# b=(a/np.sum(a))
+#
 # config = {"bedfile": True, "header": False,"cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#           "depth": 10, "num_iterations": 10000, "random_restarts": 1, "true_alpha": b,
-#           "stop_criterion": 0.00001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/070323_U25_1_rep34_mixture.epiread.gz"],
+#           "depth": 10, "num_iterations": 10000, "random_restarts": 1, "true_alpha": np.array([0.125, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.375, 0.125, 0.125, 0.125, 0.125, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+#           "stop_criterion": 0.00001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/100423_U25_1_rep22_mixture.epiread.gz"],
 #           "epiformat": "old_epiread_A", "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/070323_U25_atlas_over_regions.txt",
 #           "percent_u":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/070323_U25_percent_U.bedgraph",
 #           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/070323_U25_merged_regions_file.bed",
@@ -385,8 +384,9 @@ if __name__ == '__main__':
 #           # "thetas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__thetas.bedgraph",
 #           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_data.npy",
 #           "u_threshold":0.25,"min_length":4,"weights":False, "cell_types": list(range(31)),
+#           'minimal_cpg_per_read':1,
 #           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_metadata_celfie-plus.npy",
 #           "summing":False}
-# #%%
-# model = UXM(config)
+#
+# model = CelfiePlus(config)
 # model.run_model()
