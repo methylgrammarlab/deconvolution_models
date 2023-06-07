@@ -29,9 +29,9 @@ sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 # sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/deconvolution_models")
 sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/tests")
 from deconvolution_models.celfie import em as celfie
-from deconvolution_models.celfieish import CelfieISH as celfie_ish
-from deconvolution_models.celfie_plus_reatlas import CelfieISHReatlas as reatlas
-from deconvolution_models.epistate_plus import Epistate as epistate
+from deconvolution_models.celfie_ish import CelfieISH as celfie_ish
+from deconvolution_models.celfie_ish_reatlas import CelfieISHReatlas as reatlas
+from deconvolution_models.epistate import Epistate as epistate
 from deconvolution_models.UXM import uxm
 import numpy as np
 from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader, EpiAtlasReader, UXMAtlasReader

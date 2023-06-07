@@ -28,7 +28,7 @@ sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 from epiread_tools.naming_conventions import *
 import numpy as np
 from deconvolution_models.celfie import em as celfie
-from deconvolution_models.celfieish import CelfieISH as celfie_plus
+from deconvolution_models.celfie_ish import CelfieISH as celfie_plus
 # from deconvolution_models.epistate import READMeth as epistate
 # from deconvolution_models.epistate_plus import Epistate as epistate_plus
 
