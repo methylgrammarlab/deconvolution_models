@@ -84,10 +84,9 @@ class CelfieISH:
         :param arr: numpy array
         :return: changes array inplace
         '''
-        pc = 1e-10
         new_arr = arr.copy()
-        new_arr[arr==0] += pc
-        new_arr[arr==1] -= pc
+        new_arr[arr==0] += pseudocount
+        new_arr[arr==1] -= pseudocount
         return new_arr
 
     def filter_empty_rows(self, reads):

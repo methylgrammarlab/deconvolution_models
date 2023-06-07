@@ -31,8 +31,7 @@ sys.path.append("/Users/ireneu/PycharmProjects/deconvolution_models/tests")
 from deconvolution_models.celfie import em as celfie
 from deconvolution_models.celfieish import CelfieISH as celfie_ish
 from deconvolution_models.celfie_plus_reatlas import CelfieISHReatlas as reatlas
-from deconvolution_models.epistate import epistate as epistate
-from deconvolution_models.epistate_plus import Epistate as epistate_plus
+from deconvolution_models.epistate_plus import Epistate as epistate
 from deconvolution_models.UXM import uxm
 import numpy as np
 from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader, EpiAtlasReader, UXMAtlasReader
@@ -52,7 +51,10 @@ class NotImplementedError(Exception):
         super().__init__(self.message)
 
 
-class EMmodel:
+class DECmodel:
+    '''
+    general class for deconvolution
+    '''
     def __init__(self, config):
         self.config = config
         if "epiformat" in self.config:
@@ -85,7 +87,10 @@ class EMmodel:
         self.deconvolute()
         self.write_output()
 
-class Celfie(EMmodel):
+class Celfie(DECmodel):
+    '''
+    wrapper for https://github.com/christacaggiano/celfie
+    '''
 
     def __init__(self, config):
         super().__init__(config)
@@ -139,7 +144,10 @@ class Celfie(EMmodel):
         ll_max, alpha_max, i_max = max(restarts)
         self.alpha, self.i = alpha_max.flatten(), i_max
 
-class UXM(EMmodel):
+class UXM(DECmodel):
+    '''
+    wrapper for https://github.com/nloyfer/UXM_deconv
+    '''
     def __init__(self, config):
         super().__init__(config)
         self.U = [] #percent u
@@ -191,12 +199,11 @@ class UXM(EMmodel):
             self.alpha = uxm(self.atlas, self.U)
 
 
-class CelfiePlus(EMmodel):
+class CelfieISH(DECmodel):
 
     def __init__(self, config):
         super().__init__(config)
-        self.name = "celfie-plus"
-        # self.min_length = self.config["min_length"] ###
+        self.name = "celfie-ISH"
         if self.config['random_restarts'] > 1:
             raise NotImplementedError("random_restarts", self.name)
 
@@ -210,17 +217,6 @@ class CelfiePlus(EMmodel):
         atlas_intervals, atlas_matrices = reader.meth_cov_to_beta_matrices()
         interval_to_mat = dict(zip([str(x) for x in atlas_intervals], atlas_matrices))
         self.atlas_matrices = [interval_to_mat[str(x)] for x in self.interval_order]
-        # #########
-        # new = []
-        # new_ref = []
-        # for i, mat in enumerate(self.matrices):
-        #     x_c_v = np.array(mat != NOVAL)
-        #     # filter short reads
-        #     len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
-        #     if np.sum(len_filt):
-        #         new.append(mat[len_filt,:])
-        #         new_ref.append(self.atlas_matrices[i])
-        # self.matrices, self.atlas_matrices = new, new_ref
 
     def load_npy(self):
         self.matrices = list(np.load(self.config["data_file"], allow_pickle=True))
@@ -231,10 +227,10 @@ class CelfiePlus(EMmodel):
                        convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.two_step()
 
-class ReAtlas(CelfiePlus):
+class ReAtlas(CelfieISH):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = "plus-reatlas"
+        self.name = "CelFiE-ISH ReAtlas"
 
     def read_atlas(self):
         reader = AtlasReader(self.config)
@@ -254,10 +250,10 @@ class ReAtlas(CelfiePlus):
         self.alpha, self.i = r.two_step()
 
 
-class Epistate(CelfiePlus): #TODO: load lambdas and thetas from file
+class Epistate(CelfieISH):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = "epistate"
+        self.name = "Epistate"
 
     def load_npy(self):
         self.matrices = np.load(self.config["data_file"], allow_pickle=True)
@@ -294,28 +290,45 @@ class Epistate(CelfiePlus): #TODO: load lambdas and thetas from file
 
 
     def deconvolute(self):
-        r = epistate(self.matrices, self.lambdas, self.thetaH, self.thetaL,
+        r = epistate(self.matrices, self.lambdas, self.thetaH, self.thetaL, origins=None,
                      num_iterations=self.config["num_iterations"],
-                   convergence_criteria=self.config['stop_criterion'])
-        self.alpha, self.i = r.two_step()
-
-class EpistatePlus(Epistate):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.name = "epistate-plus"
-
-    def deconvolute(self):
-        r = epistate_plus(self.matrices, self.lambdas, self.thetaH, self.thetaL,origins=None,
-                     num_iterations=self.config["num_iterations"],
-                   convergence_criteria=self.config['stop_criterion'])
+                     convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.em()
         self.runner = r
+
 #%%
 
 @click.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
 @click.option('--model',
-              type=click.Choice(['uxm','celfie','sum-celfie', 'celfie-plus','reatlas', 'epistate', 'epistate-plus'], case_sensitive=False))
+              type=click.Choice(['uxm','celfie','sum-celfie', 'celfie-ish','reatlas', 'epistate'], case_sensitive=False))
+@click.option('-m', '--mixture', help='mixture file to deconvolute')
+@click.option('-a', '--atlas_file', help='atlas with beta values')
+@click.option('--minimal_cpg_per_read', type=int, help='only reads with at least n cpgs will be considered')
 @click.option('-j', '--json', help='run from json config file')
+@click.option('--cpg_coordinates', help='sorted cpg bed file')
+@click.option('--outfile', help='output file path')
+@click.option('-j', '--json', help='run from json config file')
+@click.option('-i', '--intervals', help='interval(s) to process. formatted chrN:start-end, separated by commas')
+@click.option('-b', '--bedfile', help='bed file chrom start end with interval(s) to process. tab delimited',
+              is_flag=True, default=False)
+@click.option('--header', is_flag=True, default=False, help="bedgraph with regions to process has header")
+@click.option('-A', '--coords', is_flag=True, help='epiread files contain coords', default=False)
+@click.option('--epiformat',
+              type=click.Choice(['old_epiread','old_epiread_A','pat'], case_sensitive=False))
+@click.option('--num_iterations', type=int,  help="maximal iterations")
+@click.option('--stop_criterion', type=float,  help="minimal improvement required to continue")
+@click.option('--random_restarts', type=int,  help="number of initializations (only one returned)")
+@click.option('--data_file', help='mixture file (for simulated data only)')
+@click.option('--metadata_file', help='atlas file (for simulated data only)')
+@click.option('--lambdas', help='lambda estimates per region (specific to epistate)')
+@click.option('--thetas', help='theta estimates per region (specific to epistate)')
+@click.option('--percent_u', help='atlas file with %U values (specific to UXM)')
+@click.option('--U_threshold',type=float, help='maximal methylation to be considered U (specific to UXM)')
+@click.option('--min_length',type=int, help='only reads with at least n cpgs will be considered (specific to UXM). same as minimal_cpg_per_read but applied at the deconvolution level')
+
+
+@click.option('-s', '--summing', help='sum each marker region (CelFiE sum)',
+              is_flag=True, default=False)
 @click.version_option()
 @click.pass_context
 def main(ctx, **kwargs):
@@ -324,6 +337,8 @@ def main(ctx, **kwargs):
         config = json.load(jconfig)
     config.update(kwargs)
     config.update(dict([item.strip('--').split('=') for item in ctx.args]))
+    if "epiread_files" not in config:
+        config["epiread_files"] = [config["mixture"]]
 
     if config["model"]=='celfie':
         model=Celfie
@@ -331,61 +346,21 @@ def main(ctx, **kwargs):
     elif config["model"]=="sum-celfie":
         model=Celfie
         config["summing"]=True
-    elif config["model"]=='celfie-plus':
-        model = CelfiePlus
+    elif config["model"]=='celfie-ish':
+        model = CelfieISH
     elif config["model"]=='reatlas':
         model = ReAtlas
     elif config["model"]=='uxm':
         model = UXM
-    elif config["model"]=='epistate':
+    else: # config["model"]=='epistate':
         model=Epistate
-    else:
-        model=EpistatePlus
-
     em_model = model(config)
-    em_model.run_model()
+    if config["data_file"] is not None and config["metadata_file"] is not None:
+        em_model.run_from_npy()
+    else:
+        em_model.run_model()
 
 if __name__ == '__main__':
     main()
 
 #%%
-#
-# config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#           "num_iterations": 1000, "random_restarts": 1,
-#           "stop_criterion":0.001, "summing":False,
-#           "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_1_rep4_mixture.epiread.gz"],
-#           "atlas_file":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_atlas_over_regions.txt",
-#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_lambdas.bedgraph",
-#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_thetas.bedgraph",
-#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/271122_U250_pancreatic_under_2_merged_regions_file.bed",
-#           "epiformat":"old_epiread_A", "slop":0}
-# #
-# config = {"bedfile": True, "header": False,"cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#           "depth": 0.2, "num_iterations": 10000, "random_restarts": 1, "true_alpha": "[0.04761905,0.0952381 ,0.14285714,0.19047619,0.23809524,0.28571429]",
-#           "stop_criterion": 0.00001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_1_rep46_mixture.epiread.gz"],
-#           "epiformat": "old_epiread_A", "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_atlas_over_regions.txt",
-#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25_merged_regions_file.bed",
-#           "lambdas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__lambdas.bedgraph",
-#           "thetas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__thetas.bedgraph",
-#           "summing":True}
-# #%%
-# model = CelfiePlus(config)
-# model.run_model()
-# import numpy as  np
-#
-# config = {"bedfile": True, "header": False,"cpg_coordinates": "/Users/ireneu/PycharmProjects/old_in-silico_deconvolution/debugging/hg19.CpG.bed.sorted.gz",
-#           "depth": 10, "num_iterations": 10000, "random_restarts": 1, "true_alpha": np.array([0.125, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.375, 0.125, 0.125, 0.125, 0.125, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
-#           "stop_criterion": 0.00001, "epiread_files": ["/Users/ireneu/PycharmProjects/deconvolution_in_silico_pipeline/data/100423_U25_1_rep22_mixture.epiread.gz"],
-#           "epiformat": "old_epiread_A", "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/070323_U25_atlas_over_regions.txt",
-#           "percent_u":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/070323_U25_percent_U.bedgraph",
-#           "genomic_intervals": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/070323_U25_merged_regions_file.bed",
-#           # "lambdas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__lambdas.bedgraph",
-#           # "thetas": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/060223_pancreatic_U25__thetas.bedgraph",
-#           "data_file": "/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_data.npy",
-#           "u_threshold":0.25,"min_length":4,"weights":False, "cell_types": list(range(31)),
-#           'minimal_cpg_per_read':1,
-#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/1_rep0_metadata_celfie-plus.npy",
-#           "summing":False}
-#
-# model = CelfiePlus(config)
-# model.run_model()
