@@ -333,8 +333,10 @@ class Epistate(CelfieISH):
 @click.pass_context
 def main(ctx, **kwargs):
     """deconvolute epiread file using atlas"""
-    with open(kwargs["json"], "r") as jconfig:
-        config = json.load(jconfig)
+    config = {}
+    if kwargs["json"] is not None:
+        with open(kwargs["json"], "r") as jconfig:
+            config = json.load(jconfig)
     config.update(kwargs)
     config.update(dict([item.strip('--').split('=') for item in ctx.args]))
     if "epiread_files" not in config:
