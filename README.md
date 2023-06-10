@@ -28,17 +28,17 @@ deconvolution --help
 
 - `--model`: Specify the deconvolution model to use. Available options are 'uxm', 'celfie', 'sum-celfie', 'celfie-ish', 'reatlas', and 'epistate'.
 - `-m`, `--mixture`: Path to the mixture file to deconvolute.
-- `-a`, `--atlas_file`: Path to the atlas file containing beta values.
+- `-a`, `--atlas_file`: Path to the atlas file containing methylation and coverage for each cell type.
 - `--minimal_cpg_per_read`: Set the minimum number of CpGs required for a read to be considered. Default is 1.
 - `-j`, `--json`: Run the deconvolution using a JSON config file.
-- `--cpg_coordinates`: Path to the sorted CpG bed file.
-- `--outfile`: Path to the output file.
+- `--cpg_coordinates`: Path to the sorted CpG bed file. Should contain coordinates for all CpG sites in bed format. 
+- `--outfile`: Path to the output file (to be generated).
 - `-i`, `--genomic_intervals`: Specify the genomic intervals to process. Use the format chrN:start-end, separated by commas.
 - `-b`, `--bedfile`: Use a bed file with chrom start-end intervals to process. The bed file should be tab delimited.
 - `--header`: The bedgraph file with regions to process has a header.
 - `--epiformat`: Specify the format of the epiread files. Available options are 'old_epiread', 'old_epiread_A', and 'pat'.
 - `--num_iterations`: Set the maximum number of iterations.
-- `--stop_criterion`: Set the minimal improvement required to continue deconvolution.
+- `--stop_criterion`: Set the minimal improvement required to continue deconvolution. 
 - `--random_restarts`: Set the number of initializations (only one will be returned).
 - `--data_file`: Specify the mixture file (for simulated data only).
 - `--metadata_file`: Specify the atlas file (for simulated data only).
@@ -83,6 +83,7 @@ deconvolution --model epistate --lambdas demo/lambdas.txt --thetas demo/thetas.t
 -i demo/U250.tsv -b --epiformat old_epiread_A --random_restarts 1 \
 --num_iterations 10000 --stop_criterion 0.0000001 --outfile demo/sample_output.txt
 ```
+The Epistate atlas files can be generated with the [bimodal-detector](https://github.com/methylgrammarlab/bimodal_detector) package.
 
 #### Comparing to other deconvolution models:
 
