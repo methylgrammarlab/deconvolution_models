@@ -26,6 +26,31 @@ To view the full list of input arguments and usage instructions, run the followi
 deconvolution --help
 ```
 
+- `--model`: Specify the deconvolution model to use. Available options are 'uxm', 'celfie', 'sum-celfie', 'celfie-ish', 'reatlas', and 'epistate'.
+- `-m`, `--mixture`: Path to the mixture file to deconvolute.
+- `-a`, `--atlas_file`: Path to the atlas file containing beta values.
+- `--minimal_cpg_per_read`: Set the minimum number of CpGs required for a read to be considered. Default is 1.
+- `-j`, `--json`: Run the deconvolution using a JSON config file.
+- `--cpg_coordinates`: Path to the sorted CpG bed file.
+- `--outfile`: Path to the output file.
+- `-i`, `--genomic_intervals`: Specify the genomic intervals to process. Use the format chrN:start-end, separated by commas.
+- `-b`, `--bedfile`: Use a bed file with chrom start-end intervals to process. The bed file should be tab delimited.
+- `--header`: The bedgraph file with regions to process has a header.
+- `--epiformat`: Specify the format of the epiread files. Available options are 'old_epiread', 'old_epiread_A', and 'pat'.
+- `--num_iterations`: Set the maximum number of iterations.
+- `--stop_criterion`: Set the minimal improvement required to continue deconvolution.
+- `--random_restarts`: Set the number of initializations (only one will be returned).
+- `--data_file`: Specify the mixture file (for simulated data only).
+- `--metadata_file`: Specify the atlas file (for simulated data only).
+- `--lambdas`: Specify the lambda estimates per region (specific to epistate).
+- `--thetas`: Specify the theta estimates per region (specific to epistate).
+- `--percent_u`: Specify the atlas file with %U values (specific to UXM).
+- `--weights`: Specify the weights per marker region (specific to UXM).
+- `--u_threshold`: Set the maximal methylation value to be considered as U (specific to UXM).
+- `--min_length`: Set the minimum number of CpGs required for a read to be considered at the deconvolution level (specific to UXM). Same as `--minimal_cpg_per_read` but applied at the deconvolution level.
+- `-s`, `--summing`: Perform summing for each marker region (CelFiE sum).
+
+
 Alternatively, if you want to deconvolute using a JSON configuration file, you can use the following command:
 ```shell
 deconvolution -j <config.json>
@@ -38,6 +63,14 @@ Below are example commands for running deconvolution using different models. All
 #### CelFiE-ISH:
 ```shell
 deconvolution --model celfie-ish -a demo/beta_atlas.txt -m demo/mixture.epiread.gz \
+--cpg_coordinates demo/sample_cpg_file.bed.gz -i demo/U250.tsv -b \
+--epiformat old_epiread_A --num_iterations 10000 --stop_criterion 0.0000001 \
+--random_restarts 1 --outfile demo/sample_output.txt
+```
+
+#### CelFiE-ISH ReAtlas:
+```shell
+deconvolution --model reatlas -a demo/beta_atlas.txt -m demo/mixture.epiread.gz \
 --cpg_coordinates demo/sample_cpg_file.bed.gz -i demo/U250.tsv -b \
 --epiformat old_epiread_A --num_iterations 10000 --stop_criterion 0.0000001 \
 --random_restarts 1 --outfile demo/sample_output.txt
