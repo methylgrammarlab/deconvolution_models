@@ -186,11 +186,11 @@ class CelfieISHReatlas:
         # old = []
         for i in range(self.num_iterations):
             # old.append(self.alpha[0])
-            new_ll = self.log_likelihood(self.alpha, self.beta)
+            # new_ll = self.log_likelihood(self.alpha, self.beta)
             # assert new_ll >= prev_ll, "old likelihood %.2f new likelihood %0.2f, alpha %s" % (
             # prev_ll, new_ll, str(self.alpha))
-            if new_ll < prev_ll:
-                print ("something went terribly wrong")
+            # if new_ll < prev_ll:
+            #     raise ("something went terribly wrong")
 
             z = self.log_expectation(self.alpha, self.beta)
             new_alpha, new_beta = self.maximization(z)
@@ -200,7 +200,7 @@ class CelfieISHReatlas:
             else:  # set current evaluation of alpha and gamma
                 self.alpha = new_alpha
                 self.beta = new_beta
-                prev_ll = new_ll
+                # prev_ll = new_ll
         return self.alpha, i
 
     def get_ll(self):

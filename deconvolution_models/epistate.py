@@ -82,8 +82,8 @@ class Epistate:
         res = []
         for arr in list_of_arrays:
             new_arr = arr.copy()
-            new_arr[np.isclose(arr, 1)] -= self.pseudocount
-            new_arr[np.isclose(arr, 0)] += self.pseudocount
+            new_arr[np.isclose(arr, 1)] -= pseudocount
+            new_arr[np.isclose(arr, 0)] += pseudocount
             res.append(new_arr)
         return res
 
@@ -161,7 +161,7 @@ class Epistate:
         prev_ll = -np.inf
         i = 0
         for i in range(self.num_iterations):
-            new_ll = self.log_likelihood(self.alpha)
+            # new_ll = self.log_likelihood(self.alpha)
             # assert new_ll >= prev_ll, "old likelihood %.2f new likelihood %0.2f, alpha %s"%(prev_ll, new_ll, str(self.alpha))
             self.z = self.calc_z( self.alpha)
             new_alpha = self.maximization(self.z)
@@ -171,6 +171,6 @@ class Epistate:
 
             else:  # set current evaluation of alpha and gamma
                 self.alpha = new_alpha
-                prev_ll = new_ll
+                # prev_ll = new_ll
         return self.alpha, i
 #%%

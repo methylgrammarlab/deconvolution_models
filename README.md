@@ -1,37 +1,73 @@
+
 # Package: deconvolution_models
 
-Contains models for methylation deconvolution
+This package contains models for methylation deconvolution.
 
+## Installation
 
-## Usage
+To install the package, you can use `pip` with the following commands:
 
-basic install
-```
+Basic install:
+```shell
 pip install git+https://github.com/methylgrammarlab/deconvolution_models
 ```
-alternatively, you may need to use an [access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
-```
+
+If you encounter any issues with the basic install, you may need to use a [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) as follows:
+```shell
 pip install git+https://<PERSONAL ACCESS TOKEN>@github.com/methylgrammarlab/deconvolution_models.git
 ```
 
-to deconvolute:
+Please note that this package requires [epiread-tools](https://github.com/methylgrammarlab/epiread-tools) to run, which should be downloaded automatically during the installation process.
+
+## Getting Started
+
+To view the full list of input arguments and usage instructions, run the following command:
+```shell
+deconvolution --help
 ```
+
+Alternatively, if you want to deconvolute using a JSON configuration file, you can use the following command:
+```shell
 deconvolution -j <config.json>
-
 ```
-#### Configuration Parameters
 
-The following parameters can be specified in the `config` dictionary or overwritten with specific arguments:
-1. Any and all parameters for epiread parsing (see https://github.com/methylgrammarlab/epiread-tools)
-2. 
-- `model` (str): one of 'uxm','celfie','sum-celfie', 'celfie-plus','reatlas', 'epistate-plus'
-- `num_iterations` (int): maximal iterations.
-- `stop_criterion` (float): minimal improvement required
-- `random_restarts` (int): number of initializations (only one returned)
-- `atlas_file` (str): atlas with beta values
-- `lambdas` (str): lambda estimates per region (specific to epistate)
-- `thetas` (str): theta estimates per region (specific to epistate)
-- `percent_u` (str): atlas file with %U values (specific to uxm)
-- `summing` (bool): sum each marker region (CelFiE sum)
-- `data_file` - mixture file (for simulated data only)
-- `metadata_file` - atlas file (for simulated data only)
+### Example Code
+
+Below are example commands for running deconvolution using different models. All the necessary files for the example code can be found in the "demo" directory.
+
+#### CelFiE-ISH:
+```shell
+deconvolution --model celfie-ish -a demo/beta_atlas.txt -m demo/mixture.epiread.gz \
+--cpg_coordinates demo/hg19.CpG.bed.sorted.gz -i demo/U250.tsv -b \
+--epiformat old_epiread_A --num_iterations 10000 --stop_criterion 0.0000001 \
+--random_restarts 1 --outfile demo/sample_output.txt
+```
+
+#### Epistate:
+```shell
+deconvolution --model epistate --lambdas demo/lambdas.txt --thetas demo/thetas.txt \
+-m demo/mixture.epiread.gz --cpg_coordinates demo/hg19.CpG.bed.sorted.gz \
+-i demo/U250.tsv -b --epiformat old_epiread_A --random_restarts 1 \
+--num_iterations 10000 --stop_criterion 0.0000001 --outfile demo/sample_output.txt
+```
+
+#### Comparing to other deconvolution models:
+
+To compare with the [CelFiE](https://github.com/christacaggiano/celfie) model, you can use the following command:
+```shell
+deconvolution --model celfie -a demo/beta_atlas.txt -m demo/mixture.epiread.gz \
+--cpg_coordinates demo/hg19.CpG.bed.sorted.gz -i demo/U250.tsv -b \
+--epiformat old_epiread_A --num_iterations 10000 --stop_criterion 0.0000001 \
+--random_restarts 1 --outfile demo/sample_output.txt
+```
+
+To compare with the [UXM](https://github.com/nloyfer/UXM_deconv) model, you can use the following command:
+```shell
+deconvolution --model uxm --percent_u demo/U_atlas.txt -m demo/mixture.epiread.gz \
+--cpg_coordinates demo/hg19.CpG.bed.sorted.gz -i demo/U250.tsv -b \
+--epiformat old_epiread_A --min_length 5 --u_threshold 0.1 \
+--random_restarts 1 --outfile demo/sample_output.txt
+```
+
+
+

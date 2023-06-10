@@ -70,8 +70,16 @@ class DECmodel:
     def load_npy(self):
         raise NotImplementedError("load_npy", self.name)
 
-    def write_output(self):
+    def write_npy(self):
+        '''
+        convenient for pipelines (easier to load)
+        :return:
+        '''
         np.save(self.config['outfile'], [self.alpha, np.array([self.i])], allow_pickle=True)
+
+    def write_output(self):
+        alpha = (self.alpha*100).reshape(1, -1)
+        np.savetxt(self.config['outfile'], alpha, fmt='%.3f', delimiter='\t')
 
     def deconvolute(self):
         raise NotImplementedError("deconvolute", self.name)
@@ -79,7 +87,7 @@ class DECmodel:
     def run_from_npy(self):
         self.load_npy()
         self.deconvolute()
-        self.write_output()
+        self.write_npy()
 
     def run_model(self):
         self.read_mixture()
@@ -303,12 +311,12 @@ class Epistate(CelfieISH):
               type=click.Choice(['uxm','celfie','sum-celfie', 'celfie-ish','reatlas', 'epistate'], case_sensitive=False))
 @click.option('-m', '--mixture', help='mixture file to deconvolute')
 @click.option('-a', '--atlas_file', help='atlas with beta values')
-@click.option('--minimal_cpg_per_read', type=int, help='only reads with at least n cpgs will be considered')
+@click.option('--minimal_cpg_per_read', type=int, help='only reads with at least n cpgs will be considered', default=1)
 @click.option('-j', '--json', help='run from json config file')
 @click.option('--cpg_coordinates', help='sorted cpg bed file')
 @click.option('--outfile', help='output file path')
 @click.option('-j', '--json', help='run from json config file')
-@click.option('-i', '--intervals', help='interval(s) to process. formatted chrN:start-end, separated by commas')
+@click.option('-i', '--genomic_intervals', help='interval(s) to process. formatted chrN:start-end, separated by commas')
 @click.option('-b', '--bedfile', help='bed file chrom start end with interval(s) to process. tab delimited',
               is_flag=True, default=False)
 @click.option('--header', is_flag=True, default=False, help="bedgraph with regions to process has header")
@@ -323,7 +331,9 @@ class Epistate(CelfieISH):
 @click.option('--lambdas', help='lambda estimates per region (specific to epistate)')
 @click.option('--thetas', help='theta estimates per region (specific to epistate)')
 @click.option('--percent_u', help='atlas file with %U values (specific to UXM)')
-@click.option('--U_threshold',type=float, help='maximal methylation to be considered U (specific to UXM)')
+@click.option('--weights', help='weights per marker region (specific to UXM)')
+
+@click.option('--u_threshold',type=float, help='maximal methylation to be considered U (specific to UXM)')
 @click.option('--min_length',type=int, help='only reads with at least n cpgs will be considered (specific to UXM). same as minimal_cpg_per_read but applied at the deconvolution level')
 
 
@@ -366,3 +376,4 @@ if __name__ == '__main__':
     main()
 
 #%%
+# config = {"model":"uxm", "percent_u": "demo/U_atlas.txt", "mixture": "demo/mixture.epiread.gz", }

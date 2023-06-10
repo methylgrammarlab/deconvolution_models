@@ -178,7 +178,7 @@ class CelfieISH:
         ll = []
         for i in range(self.num_iterations):
             # old.append(self.alpha[0])
-            ll.append(self.get_ll())
+            # ll.append(self.get_ll())
             z = self.log_expectation(self.alpha)
             new_alpha = self.maximization(z)
             if i and self.test_convergence(new_alpha):
