@@ -38,7 +38,7 @@ Below are example commands for running deconvolution using different models. All
 #### CelFiE-ISH:
 ```shell
 deconvolution --model celfie-ish -a demo/beta_atlas.txt -m demo/mixture.epiread.gz \
---cpg_coordinates demo/hg19.CpG.bed.sorted.gz -i demo/U250.tsv -b \
+--cpg_coordinates demo/sample_cpg_file.bed.gz -i demo/U250.tsv -b \
 --epiformat old_epiread_A --num_iterations 10000 --stop_criterion 0.0000001 \
 --random_restarts 1 --outfile demo/sample_output.txt
 ```
@@ -46,7 +46,7 @@ deconvolution --model celfie-ish -a demo/beta_atlas.txt -m demo/mixture.epiread.
 #### Epistate:
 ```shell
 deconvolution --model epistate --lambdas demo/lambdas.txt --thetas demo/thetas.txt \
--m demo/mixture.epiread.gz --cpg_coordinates demo/hg19.CpG.bed.sorted.gz \
+-m demo/mixture.epiread.gz --cpg_coordinates demo/sample_cpg_file.bed.gz \
 -i demo/U250.tsv -b --epiformat old_epiread_A --random_restarts 1 \
 --num_iterations 10000 --stop_criterion 0.0000001 --outfile demo/sample_output.txt
 ```
@@ -56,7 +56,7 @@ deconvolution --model epistate --lambdas demo/lambdas.txt --thetas demo/thetas.t
 To compare with the [CelFiE](https://github.com/christacaggiano/celfie) model, you can use the following command:
 ```shell
 deconvolution --model celfie -a demo/beta_atlas.txt -m demo/mixture.epiread.gz \
---cpg_coordinates demo/hg19.CpG.bed.sorted.gz -i demo/U250.tsv -b \
+--cpg_coordinates demo/sample_cpg_file.bed.gz -i demo/U250.tsv -b \
 --epiformat old_epiread_A --num_iterations 10000 --stop_criterion 0.0000001 \
 --random_restarts 1 --outfile demo/sample_output.txt
 ```
@@ -64,7 +64,7 @@ deconvolution --model celfie -a demo/beta_atlas.txt -m demo/mixture.epiread.gz \
 To compare with the [UXM](https://github.com/nloyfer/UXM_deconv) model, you can use the following command:
 ```shell
 deconvolution --model uxm --percent_u demo/U_atlas.txt -m demo/mixture.epiread.gz \
---cpg_coordinates demo/hg19.CpG.bed.sorted.gz -i demo/U250.tsv -b \
+--cpg_coordinates demo/sample_cpg_file.bed.gz -i demo/U250.tsv -b \
 --epiformat old_epiread_A --min_length 5 --u_threshold 0.1 \
 --random_restarts 1 --outfile demo/sample_output.txt
 ```
