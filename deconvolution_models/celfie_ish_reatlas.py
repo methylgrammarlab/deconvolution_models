@@ -69,7 +69,7 @@ class CelfieISHReatlas:
         has_cov = np.array([(~(x == NOVAL)).any() for x in self.x]) #empty regions, remove
         self.y = list(compress(self.y, has_cov))
         self.y_depths = list(compress(self.y_depths, has_cov))
-        self.x = list(np.array(self.x)[has_cov])
+        self.x = list(np.array(self.x, dtype=object)[has_cov])
 
     def filter_empty_rows(self, reads):
         filtered = []
