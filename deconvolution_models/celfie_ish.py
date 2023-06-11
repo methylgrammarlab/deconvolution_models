@@ -114,7 +114,7 @@ class CelfieISH:
         self.x = [self.x[i][:,ref_cov[i]] for i in range(len(self.x))]
         has_cov = np.array([(~(x == NOVAL)).any() for x in self.x]) #empty regions, remove
         self.beta = list(compress(self.beta, has_cov))
-        self.x = list(np.array(self.x)[has_cov])
+        self.x = list(np.array(self.x, dtype=object)[has_cov])
         if self.origins:
             self.origins = list(compress(self.origins, has_cov))
 
