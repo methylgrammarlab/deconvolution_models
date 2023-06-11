@@ -34,7 +34,8 @@ from deconvolution_models.celfie_ish_reatlas import CelfieISHReatlas as reatlas
 from deconvolution_models.epistate import Epistate as epistate
 from deconvolution_models.UXM import uxm
 import numpy as np
-from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader, EpiAtlasReader, UXMAtlasReader
+from epiread_tools.epiparser import EpireadReader, CoordsEpiread, AtlasReader, EpiAtlasReader, UXMAtlasReader
+from epiread_tools.epiparser_formats import epiformat_to_reader
 from epiread_tools.naming_conventions import *
 from epiread_tools.em_utils import calc_coverage, calc_methylated, calc_percent_U
 
