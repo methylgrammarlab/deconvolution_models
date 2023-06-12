@@ -323,7 +323,7 @@ class Epistate(CelfieISH):
 @click.option('--header', is_flag=True, default=False, help="bedgraph with regions to process has header")
 @click.option('-A', '--coords', is_flag=True, help='epiread files contain coords', default=False)
 @click.option('--epiformat',
-              type=click.Choice(['old_epiread','old_epiread_A','pat'], case_sensitive=False))
+              type=click.Choice(['old_epiread','old_epiread_A','pat','modbam'], case_sensitive=False))
 @click.option('--num_iterations', type=int,  help="maximal iterations")
 @click.option('--stop_criterion', type=float,  help="minimal improvement required to continue")
 @click.option('--random_restarts', type=int,  help="number of initializations (only one returned)")
