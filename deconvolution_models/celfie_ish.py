@@ -162,7 +162,6 @@ class CelfieISH:
         return alpha_diff < self.convergence_criteria
 
     def init_alpha(self):
-        # np.random.seed(123)
         alpha = np.random.uniform(size=(self.t))
         alpha /= np.sum(alpha)
         self.alpha=alpha
@@ -183,7 +182,6 @@ class CelfieISH:
             new_alpha = self.maximization(z)
             if i and self.test_convergence(new_alpha):
                 break
-                # pass
 
             else:  # set current evaluation of alpha and gamma
                 self.alpha = new_alpha

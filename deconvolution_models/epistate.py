@@ -131,7 +131,6 @@ class Epistate:
 
 
     def init_alpha(self):
-        # np.random.seed(123)
         if self.alpha is None:
             alpha = np.random.uniform(size=(self.t))
             alpha /= np.sum(alpha)
@@ -158,7 +157,7 @@ class Epistate:
         :return: cell type proportions, log-likelihood
         '''
         self.init_alpha()
-        prev_ll = -np.inf
+        # prev_ll = -np.inf
         i = 0
         for i in range(self.num_iterations):
             # new_ll = self.log_likelihood(self.alpha)
