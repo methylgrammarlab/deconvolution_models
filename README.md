@@ -34,7 +34,7 @@ deconvolution --help
 - `--cpg_coordinates`: Path to the sorted CpG bed file. Should contain coordinates for all CpG sites in bed format. 
 - `--outfile`: Path to the output file (to be generated).
 - `-i`, `--genomic_intervals`: Specify the genomic intervals to process. Use the format chrN:start-end, separated by commas.
-- `-b`, `--bedfile`: Use a bed file with chrom start-end intervals to process. The bed file should be tab delimited.
+- `-b`, `--bedfile`: The intervals (-i) are in a bedfile, rather than a comma delimited list.
 - `--header`: The bedgraph file with regions to process has a header.
 - `--epiformat`: Specify the format of the epiread files. Available options are 'old_epiread', 'old_epiread_A', and 'pat'.
 - `--num_iterations`: Set the maximum number of iterations.

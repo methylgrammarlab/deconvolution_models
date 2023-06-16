@@ -34,7 +34,8 @@ from deconvolution_models.celfie_ish_reatlas import CelfieISHReatlas as reatlas
 from deconvolution_models.epistate import Epistate as epistate
 from deconvolution_models.UXM import uxm
 import numpy as np
-from epiread_tools.epiparser import EpireadReader, CoordsEpiread, epiformat_to_reader,AtlasReader, EpiAtlasReader, UXMAtlasReader
+from epiread_tools.epiparser import EpireadReader, CoordsEpiread,AtlasReader, EpiAtlasReader, UXMAtlasReader, PatReader
+from epiread_tools.epiformat import epiformat_to_reader
 from epiread_tools.naming_conventions import *
 from epiread_tools.em_utils import calc_coverage, calc_methylated, calc_percent_U
 
@@ -93,7 +94,10 @@ class DECmodel:
         self.read_mixture()
         self.read_atlas()
         self.deconvolute()
-        self.write_output()
+        if self.config["npy"] is not None:
+            self.write_npy()
+        else:
+            self.write_output()
 
 class Celfie(DECmodel):
     '''
@@ -317,7 +321,7 @@ class Epistate(CelfieISH):
 @click.option('--outfile', help='output file path')
 @click.option('-j', '--json', help='run from json config file')
 @click.option('-i', '--genomic_intervals', help='interval(s) to process. formatted chrN:start-end, separated by commas')
-@click.option('-b', '--bedfile', help='bed file chrom start end with interval(s) to process. tab delimited',
+@click.option('-b', '--bedfile', help='the intervals are in a bedfile',
               is_flag=True, default=False)
 @click.option('--header', is_flag=True, default=False, help="bedgraph with regions to process has header")
 @click.option('-A', '--coords', is_flag=True, help='epiread files contain coords', default=False)
@@ -338,6 +342,8 @@ class Epistate(CelfieISH):
 
 
 @click.option('-s', '--summing', help='sum each marker region (CelFiE sum)',
+              is_flag=True, default=False)
+@click.option('--npy', help='output .npy file instead of text (for pipelines)',
               is_flag=True, default=False)
 @click.version_option()
 @click.pass_context
