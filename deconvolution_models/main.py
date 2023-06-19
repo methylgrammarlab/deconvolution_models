@@ -350,11 +350,20 @@ class Epistate(CelfieISH):
 def main(ctx, **kwargs):
     """deconvolute epiread file using atlas"""
     config = {}
+
+    # Load JSON configuration if provided
     if kwargs["json"] is not None:
         with open(kwargs["json"], "r") as jconfig:
             config = json.load(jconfig)
-    config.update(kwargs)
+
+    # Update config with user-provided arguments if they are not None
+    for key, value in kwargs.items():
+        if value is not None:
+            config[key] = value
+
+    # Update config with command line arguments from ctx.args
     config.update(dict([item.strip('--').split('=') for item in ctx.args]))
+
     if "epiread_files" not in config:
         config["epiread_files"] = [config["mixture"]]
 
