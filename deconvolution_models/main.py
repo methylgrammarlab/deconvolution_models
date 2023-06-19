@@ -34,7 +34,7 @@ from deconvolution_models.celfie_ish_reatlas import CelfieISHReatlas as reatlas
 from deconvolution_models.epistate import Epistate as epistate
 from deconvolution_models.UXM import uxm
 import numpy as np
-from epiread_tools.epiparser import EpireadReader, CoordsEpiread,AtlasReader, EpiAtlasReader, UXMAtlasReader, PatReader
+from epiread_tools.epiparser import EpireadReader, CoordsEpiread,AtlasReader, EpiAtlasReader, UXMAtlasReader
 from epiread_tools.epiformat import epiformat_to_reader
 from epiread_tools.naming_conventions import *
 from epiread_tools.em_utils import calc_coverage, calc_methylated, calc_percent_U
@@ -350,19 +350,11 @@ class Epistate(CelfieISH):
 def main(ctx, **kwargs):
     """deconvolute epiread file using atlas"""
     config = {}
-
-    # Load JSON configuration if provided
+    config.update(kwargs)
+    config.update(dict([item.strip('--').split('=') for item in ctx.args]))
     if kwargs["json"] is not None:
         with open(kwargs["json"], "r") as jconfig:
-            config = json.load(jconfig)
-
-    # Update config with user-provided arguments if they are not None
-    for key, value in kwargs.items():
-        if value is not None:
-            config[key] = value
-
-    # Update config with command line arguments from ctx.args
-    config.update(dict([item.strip('--').split('=') for item in ctx.args]))
+            config.update(json.load(jconfig))
 
     if "epiread_files" not in config:
         config["epiread_files"] = [config["mixture"]]

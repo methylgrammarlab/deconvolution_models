@@ -55,6 +55,7 @@ Alternatively, if you want to deconvolute using a JSON configuration file, you c
 ```shell
 deconvolution -j <config.json>
 ```
+JSON will override command line arguments provided. 
 
 ### Example Code
 
