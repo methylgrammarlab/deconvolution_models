@@ -164,7 +164,7 @@ class UXM(DECmodel):
         super().__init__(config)
         self.U = [] #percent u
         self.N = [] #number of fragments = weights
-        self.i = 0
+        self.i = 0 #iteration, for compatibility with pipeline
         self.min_length = self.config["min_length"]
 
     def read_mixture(self):
@@ -177,14 +177,20 @@ class UXM(DECmodel):
         for mat in self.matrices:
             x_c_v = np.array(mat != NOVAL)
             # filter short reads
-            len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
-            if not np.sum(len_filt):  # empty region
+            self.len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
+            if not np.sum(self.len_filt):  # empty region
                 self.U.append(0)
                 self.N.append(0)
             else:
-                small = mat[len_filt, :]
+                small = mat[self.len_filt, :]
                 self.U.append(calc_percent_U(small, self.config["u_threshold"]))
                 self.N.append(small.shape[0])
+
+    def filter_empty(self):
+        empty = np.array(self.N) == 0
+        self.U = list(np.array(self.U)[~empty])
+        self.atlas=self.atlas[~empty,:]
+        self.N = list(np.array(self.N)[~empty])
 
     def read_atlas(self):
         reader = UXMAtlasReader(self.config)
@@ -204,6 +210,7 @@ class UXM(DECmodel):
         self.atlas = np.vstack(np.load(self.config["metadata_file"], allow_pickle=True))
 
     def deconvolute(self):
+        self.filter_empty() #Note: this messes up the interval/cpgs
         self.i = np.sum(self.N)
         if self.config["weights"]:
             self.alpha = uxm(self.atlas, self.U, self.N)
@@ -383,4 +390,9 @@ if __name__ == '__main__':
     main()
 
 #%%
-# config = {"model":"uxm", "percent_u": "demo/U_atlas.txt", "mixture": "demo/mixture.epiread.gz", }
+
+# config = {"model":"uxm", "percent_u": "../demo/U_atlas.txt", "epiread_files": ["../demo/mixture.epiread.gz"],"cpg_coordinates":"../demo/sample_cpg_file.bed.gz",
+#           "genomic_intervals":"../demo/U250.tsv", "epiformat":"old_epiread_A", "random_restarts":1, "outfile":"test", "min_length":4, "u_threshold":0.25,
+#           "bedfile":True, "header":False, "weights":False}
+# em_model = UXM(config)
+# em_model.run_model()

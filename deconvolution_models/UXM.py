@@ -28,7 +28,6 @@ def uxm(atlas, samp, weights=None):
     :param weights: optional weight per region
     :return: the mixture coefficients
     """
-    #TODO: remove missing sites from both sample and atlas?
 
     if weights is not None:
         ready_samp = np.multiply(samp, np.array(weights).reshape(1, -1)).flatten()
@@ -36,7 +35,7 @@ def uxm(atlas, samp, weights=None):
     else:
         ready_samp = samp
         ready_atlas = atlas
-    mixture, residual = optimize.nnls(ready_atlas, ready_samp) #TODO add maxiter?
+    mixture, residual = optimize.nnls(ready_atlas, ready_samp)
     mixture /= np.sum(mixture)
     return mixture
 
