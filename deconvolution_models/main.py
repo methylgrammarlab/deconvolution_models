@@ -343,7 +343,8 @@ class Epistate(CelfieISH):
 @click.option('--thetas', help='theta estimates per region (specific to epistate)')
 @click.option('--percent_u', help='atlas file with %U values (specific to UXM)')
 @click.option('--weights', help='weights per marker region (specific to UXM)')
-
+@click.option('--variant', help='epiread file is vcf .csi and not tabix .tbi',
+              is_flag=True, default=False)
 @click.option('--u_threshold',type=float, help='maximal methylation to be considered U (specific to UXM)')
 @click.option('--min_length',type=int, help='only reads with at least n cpgs will be considered (specific to UXM). same as minimal_cpg_per_read but applied at the deconvolution level')
 
