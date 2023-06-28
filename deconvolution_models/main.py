@@ -227,10 +227,10 @@ class CelfieISH(DECmodel):
             raise NotImplementedError("random_restarts", self.name)
 
     def read_mixture(self):
-        # reader = self.reader(self.config)
-        # self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
-        # self.matrices = [x.toarray() for x in self.matrices]
-        pass
+        reader = self.reader(self.config)
+        self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
+        self.matrices = [x.toarray() for x in self.matrices]
+
 
     def read_atlas(self):
         reader = AtlasReader(self.config)
