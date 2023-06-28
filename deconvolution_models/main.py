@@ -227,9 +227,10 @@ class CelfieISH(DECmodel):
             raise NotImplementedError("random_restarts", self.name)
 
     def read_mixture(self):
-        reader = self.reader(self.config)
-        self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
-        self.matrices = [x.toarray() for x in self.matrices]
+        # reader = self.reader(self.config)
+        # self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
+        # self.matrices = [x.toarray() for x in self.matrices]
+        pass
 
     def read_atlas(self):
         reader = AtlasReader(self.config)
@@ -390,8 +391,14 @@ if __name__ == '__main__':
 
 #%%
 
-# config = {"model":"uxm", "percent_u": "../demo/U_atlas.txt", "epiread_files": ["../demo/mixture.epiread.gz"],"cpg_coordinates":"../demo/sample_cpg_file.bed.gz",
-#           "genomic_intervals":"../demo/U250.tsv", "epiformat":"old_epiread_A", "random_restarts":1, "outfile":"test", "min_length":4, "u_threshold":0.25,
-#           "bedfile":True, "header":False, "weights":False}
-# em_model = UXM(config)
+# config = {"cpg_coordinates": "/Users/ireneu/berman_lab/ALS/hg19_pat_cpg.bed.gz", "bedfile":True,
+#           "genomic_intervals":"/Users/ireneu/berman_lab/ALS/pat_U250.bed", "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
+#           "epiformat":"pat", "header":False, "epiread_files":["/Users/ireneu/berman_lab/ALS/ALS6_SRR13404376.pat.gz"],
+#           "atlas_file": "/Users/ireneu/berman_lab/ALS/ALS_260623_atlas_over_regions.txt","percent_u": "/Users/ireneu/berman_lab/ALS/ALS_260623_percent_U.bedgraph",
+#  "weights": False, "num_iterations": 10000, "stop_criterion": 1e-07, "random_restarts": 1, "minimal_cpg_per_read": 1,
+#  "min_length": 4, "u_threshold": 0.25, "npy":False
+#           }
+
+
+# em_model = CelfieISH(config)
 # em_model.run_model()

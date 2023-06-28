@@ -155,6 +155,7 @@ class CelfieISH:
         all_z = np.hstack(z)
         new_alpha = np.sum(all_z, axis=1)
         new_alpha /= np.sum(new_alpha)
+        assert not np.isnan(new_alpha).any(), "alpha has NaN"
         return new_alpha
 
     def test_convergence(self, new_alpha):
@@ -173,10 +174,10 @@ class CelfieISH:
         '''
         if not self.alpha:
             self.init_alpha()
-        # old = []
-        ll = []
+        old = []
+        # ll = []
         for i in range(self.num_iterations):
-            # old.append(self.alpha[0])
+            old.append(self.alpha[0])
             # ll.append(self.get_ll())
             z = self.log_expectation(self.alpha)
             new_alpha = self.maximization(z)
