@@ -34,8 +34,8 @@ from deconvolution_models.celfie_ish_reatlas import CelfieISHReatlas as reatlas
 from deconvolution_models.epistate import Epistate as epistate
 from deconvolution_models.UXM import uxm
 import numpy as np
-from epiread_tools.epiparser import EpireadReader, CoordsEpiread, AtlasReader, EpiAtlasReader, UXMAtlasReader
-from epiread_tools.epiparser_formats import epiformat_to_reader
+from epiread_tools.epiparser import EpireadReader, CoordsEpiread,AtlasReader, EpiAtlasReader, UXMAtlasReader
+from epiread_tools.epiformat import epiformat_to_reader
 from epiread_tools.naming_conventions import *
 from epiread_tools.em_utils import calc_coverage, calc_methylated, calc_percent_U
 
@@ -94,7 +94,10 @@ class DECmodel:
         self.read_mixture()
         self.read_atlas()
         self.deconvolute()
-        self.write_output()
+        if self.config["npy"] is not None:
+            self.write_npy()
+        else:
+            self.write_output()
 
 class Celfie(DECmodel):
     '''
@@ -161,7 +164,7 @@ class UXM(DECmodel):
         super().__init__(config)
         self.U = [] #percent u
         self.N = [] #number of fragments = weights
-        self.i = 0
+        self.i = 0 #iteration, for compatibility with pipeline
         self.min_length = self.config["min_length"]
 
     def read_mixture(self):
@@ -174,14 +177,20 @@ class UXM(DECmodel):
         for mat in self.matrices:
             x_c_v = np.array(mat != NOVAL)
             # filter short reads
-            len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
-            if not np.sum(len_filt):  # empty region
+            self.len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
+            if not np.sum(self.len_filt):  # empty region
                 self.U.append(0)
                 self.N.append(0)
             else:
-                small = mat[len_filt, :]
+                small = mat[self.len_filt, :]
                 self.U.append(calc_percent_U(small, self.config["u_threshold"]))
                 self.N.append(small.shape[0])
+
+    def filter_empty(self):
+        empty = np.array(self.N) == 0
+        self.U = list(np.array(self.U)[~empty])
+        self.atlas=self.atlas[~empty,:]
+        self.N = list(np.array(self.N)[~empty])
 
     def read_atlas(self):
         reader = UXMAtlasReader(self.config)
@@ -201,6 +210,7 @@ class UXM(DECmodel):
         self.atlas = np.vstack(np.load(self.config["metadata_file"], allow_pickle=True))
 
     def deconvolute(self):
+        self.filter_empty() #Note: this messes up the interval/cpgs
         self.i = np.sum(self.N)
         if self.config["weights"]:
             self.alpha = uxm(self.atlas, self.U, self.N)
@@ -220,6 +230,7 @@ class CelfieISH(DECmodel):
         reader = self.reader(self.config)
         self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
         self.matrices = [x.toarray() for x in self.matrices]
+
 
     def read_atlas(self):
         reader = AtlasReader(self.config)
@@ -318,7 +329,7 @@ class Epistate(CelfieISH):
 @click.option('--outfile', help='output file path')
 @click.option('-j', '--json', help='run from json config file')
 @click.option('-i', '--genomic_intervals', help='interval(s) to process. formatted chrN:start-end, separated by commas')
-@click.option('-b', '--bedfile', help='bed file chrom start end with interval(s) to process. tab delimited',
+@click.option('-b', '--bedfile', help='the intervals are in a bedfile',
               is_flag=True, default=False)
 @click.option('--header', is_flag=True, default=False, help="bedgraph with regions to process has header")
 @click.option('-A', '--coords', is_flag=True, help='epiread files contain coords', default=False)
@@ -333,23 +344,25 @@ class Epistate(CelfieISH):
 @click.option('--thetas', help='theta estimates per region (specific to epistate)')
 @click.option('--percent_u', help='atlas file with %U values (specific to UXM)')
 @click.option('--weights', help='weights per marker region (specific to UXM)')
-
 @click.option('--u_threshold',type=float, help='maximal methylation to be considered U (specific to UXM)')
 @click.option('--min_length',type=int, help='only reads with at least n cpgs will be considered (specific to UXM). same as minimal_cpg_per_read but applied at the deconvolution level')
 
 
 @click.option('-s', '--summing', help='sum each marker region (CelFiE sum)',
               is_flag=True, default=False)
+@click.option('--npy', help='output .npy file instead of text (for pipelines)',
+              is_flag=True, default=False)
 @click.version_option()
 @click.pass_context
 def main(ctx, **kwargs):
     """deconvolute epiread file using atlas"""
     config = {}
-    if kwargs["json"] is not None:
-        with open(kwargs["json"], "r") as jconfig:
-            config = json.load(jconfig)
     config.update(kwargs)
     config.update(dict([item.strip('--').split('=') for item in ctx.args]))
+    if kwargs["json"] is not None:
+        with open(kwargs["json"], "r") as jconfig:
+            config.update(json.load(jconfig))
+
     if "epiread_files" not in config:
         config["epiread_files"] = [config["mixture"]]
 
@@ -377,4 +390,15 @@ if __name__ == '__main__':
     main()
 
 #%%
-# config = {"model":"uxm", "percent_u": "demo/U_atlas.txt", "mixture": "demo/mixture.epiread.gz", }
+
+# config = {"cpg_coordinates": "/Users/ireneu/berman_lab/ALS/hg19_pat_cpg.bed.gz", "bedfile":True,
+#           "genomic_intervals":"/Users/ireneu/berman_lab/ALS/pat_U250.bed", "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
+#           "epiformat":"pat", "header":False, "epiread_files":["/Users/ireneu/berman_lab/ALS/ALS6_SRR13404376.pat.gz"],
+#           "atlas_file": "/Users/ireneu/berman_lab/ALS/ALS_260623_atlas_over_regions.txt","percent_u": "/Users/ireneu/berman_lab/ALS/ALS_260623_percent_U.bedgraph",
+#  "weights": False, "num_iterations": 10000, "stop_criterion": 1e-07, "random_restarts": 1, "minimal_cpg_per_read": 1,
+#  "min_length": 4, "u_threshold": 0.25, "npy":False
+#           }
+
+
+# em_model = CelfieISH(config)
+# em_model.run_model()
