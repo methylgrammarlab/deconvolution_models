@@ -115,7 +115,6 @@ class Celfie(DECmodel):
         if self.config["summing"]:
             self.x, self.x_depths = np.array([np.sum(x) for x in self.methylation]), \
                                     np.array([np.sum(x) for x in self.coverage])
-
     def read_atlas(self):
         reader = AtlasReader(self.config)
         atlas_intervals, y, y_depths = reader.meth_cov_to_meth_cov() #no summing
@@ -387,26 +386,19 @@ def main(ctx, **kwargs):
     else:
         em_model.run_model()
 
-# if __name__ == '__main__'::
-#     main()
+if __name__ == '__main__':
+    main()
 
 #%%
-config = {"cpg_coordinates": "/Users/ireneu/berman_lab/ALS/hg19_pat_cpg.bed.gz", "bedfile":True,
-          "genomic_intervals":"/Users/ireneu/berman_lab/ALS/pat_U250.bed", "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
-          "epiformat":"pat", "header":False, "epiread_files":["/Users/ireneu/berman_lab/ALS/ALS6_SRR13404376.pat.gz"],
-          "atlas_file": "/Users/ireneu/berman_lab/ALS/ALS_260623_atlas_over_regions.txt","percent_u": "/Users/ireneu/berman_lab/ALS/ALS_260623_percent_U.bedgraph",
- "weights": False, "num_iterations": 10000, "stop_criterion": 1e-07, "random_restarts": 1, "minimal_cpg_per_read": 1,
- "min_length": 4, "u_threshold": 0.25, "npy":False, "summing":True
-          }
-# import os
-# os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
-# config = {"cpg_coordinates": "demo/sample_cpg_file.bed.gz", "bedfile":True,
-#           "genomic_intervals":"demo/U250.tsv", "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
-#           "epiformat":"old_epiread_A", "header":False, "epiread_files":["demo/mixture.epiread.gz"],
-#           "atlas_file": "demo/beta_atlas.txt",
-#   "num_iterations": 10, "stop_criterion": 1e-07, "random_restarts": 1, "minimal_cpg_per_read": 1,
-#
+
+# config = {"cpg_coordinates": "/Users/ireneu/berman_lab/ALS/hg19_pat_cpg.bed.gz", "bedfile":True,
+#           "genomic_intervals":"/Users/ireneu/berman_lab/ALS/pat_U250.bed", "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
+#           "epiformat":"pat", "header":False, "epiread_files":["/Users/ireneu/berman_lab/ALS/ALS6_SRR13404376.pat.gz"],
+#           "atlas_file": "/Users/ireneu/berman_lab/ALS/ALS_260623_atlas_over_regions.txt","percent_u": "/Users/ireneu/berman_lab/ALS/ALS_260623_percent_U.bedgraph",
+#  "weights": False, "num_iterations": 10000, "stop_criterion": 1e-07, "random_restarts": 1, "minimal_cpg_per_read": 1,
+#  "min_length": 4, "u_threshold": 0.25, "npy":False
 #           }
-#
-em_model = CelfieISH(config)
-em_model.run_model()
+
+
+# em_model = CelfieISH(config)
+# em_model.run_model()
