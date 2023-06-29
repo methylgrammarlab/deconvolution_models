@@ -115,6 +115,7 @@ class Celfie(DECmodel):
         if self.config["summing"]:
             self.x, self.x_depths = np.array([np.sum(x) for x in self.methylation]), \
                                     np.array([np.sum(x) for x in self.coverage])
+
     def read_atlas(self):
         reader = AtlasReader(self.config)
         atlas_intervals, y, y_depths = reader.meth_cov_to_meth_cov() #no summing
@@ -231,6 +232,7 @@ class CelfieISH(DECmodel):
         self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
         self.matrices = [x.toarray() for x in self.matrices]
 
+
     def read_atlas(self):
         reader = AtlasReader(self.config)
         atlas_intervals, atlas_matrices = reader.meth_cov_to_beta_matrices()
@@ -343,7 +345,6 @@ class Epistate(CelfieISH):
 @click.option('--thetas', help='theta estimates per region (specific to epistate)')
 @click.option('--percent_u', help='atlas file with %U values (specific to UXM)')
 @click.option('--weights', help='weights per marker region (specific to UXM)')
-
 @click.option('--u_threshold',type=float, help='maximal methylation to be considered U (specific to UXM)')
 @click.option('--min_length',type=int, help='only reads with at least n cpgs will be considered (specific to UXM). same as minimal_cpg_per_read but applied at the deconvolution level')
 
@@ -386,13 +387,26 @@ def main(ctx, **kwargs):
     else:
         em_model.run_model()
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__'::
+#     main()
 
 #%%
-
-# config = {"model":"uxm", "percent_u": "../demo/U_atlas.txt", "epiread_files": ["../demo/mixture.epiread.gz"],"cpg_coordinates":"../demo/sample_cpg_file.bed.gz",
-#           "genomic_intervals":"../demo/U250.tsv", "epiformat":"old_epiread_A", "random_restarts":1, "outfile":"test", "min_length":4, "u_threshold":0.25,
-#           "bedfile":True, "header":False, "weights":False}
-# em_model = UXM(config)
-# em_model.run_model()
+config = {"cpg_coordinates": "/Users/ireneu/berman_lab/ALS/hg19_pat_cpg.bed.gz", "bedfile":True,
+          "genomic_intervals":"/Users/ireneu/berman_lab/ALS/pat_U250.bed", "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
+          "epiformat":"pat", "header":False, "epiread_files":["/Users/ireneu/berman_lab/ALS/ALS6_SRR13404376.pat.gz"],
+          "atlas_file": "/Users/ireneu/berman_lab/ALS/ALS_260623_atlas_over_regions.txt","percent_u": "/Users/ireneu/berman_lab/ALS/ALS_260623_percent_U.bedgraph",
+ "weights": False, "num_iterations": 10000, "stop_criterion": 1e-07, "random_restarts": 1, "minimal_cpg_per_read": 1,
+ "min_length": 4, "u_threshold": 0.25, "npy":False, "summing":True
+          }
+# import os
+# os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
+# config = {"cpg_coordinates": "demo/sample_cpg_file.bed.gz", "bedfile":True,
+#           "genomic_intervals":"demo/U250.tsv", "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
+#           "epiformat":"old_epiread_A", "header":False, "epiread_files":["demo/mixture.epiread.gz"],
+#           "atlas_file": "demo/beta_atlas.txt",
+#   "num_iterations": 10, "stop_criterion": 1e-07, "random_restarts": 1, "minimal_cpg_per_read": 1,
+#
+#           }
+#
+em_model = CelfieISH(config)
+em_model.run_model()
