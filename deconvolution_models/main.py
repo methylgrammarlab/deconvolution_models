@@ -94,7 +94,7 @@ class DECmodel:
         self.read_mixture()
         self.read_atlas()
         self.deconvolute()
-        if self.config["npy"] is not None:
+        if self.config["npy"]:
             self.write_npy()
         else:
             self.write_output()
