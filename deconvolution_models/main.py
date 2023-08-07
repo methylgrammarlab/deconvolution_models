@@ -177,7 +177,9 @@ class UXM(DECmodel):
         for mat in self.matrices:
             x_c_v = np.array(mat != NOVAL)
             # filter short reads
+            print("x_c_v shape" + str(x_c_v.shape))
             self.len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
+            print("len_filt = " + str(self.len_filt))
             if not np.sum(self.len_filt):  # empty region
                 self.U.append(0)
                 self.N.append(0)
@@ -187,15 +189,31 @@ class UXM(DECmodel):
                 self.N.append(small.shape[0])
 
     def filter_empty(self):
+
+        print(np.array(self.N)[:3])
         empty = np.array(self.N) == 0
         self.U = list(np.array(self.U)[~empty])
+
+        # Print out the first 3 rows of self.atlas
+        print(self.atlas[:3,:])
+
         self.atlas=self.atlas[~empty,:]
         self.N = list(np.array(self.N)[~empty])
+
+
+        print("B3 self.atlas_intervals.shape: ", np.array(self.atlas_intervals).shape)
+        print("B3 self.atlas.shape: ", self.atlas.shape)
+
 
     def read_atlas(self):
         reader = UXMAtlasReader(self.config)
         self.atlas_intervals, self.atlas = reader.read()
+        print("B self.atlas_intervals.shape: ", np.array(self.atlas_intervals).shape)
+        print("B self.atlas.shape: ", self.atlas.shape)
         self.sort_intervals()
+        print("B2 self.atlas_intervals.shape: ", np.array(self.atlas_intervals).shape)
+        print("B2 self.atlas.shape: ", self.atlas.shape)
+
 
     def sort_intervals(self):
         atlas_to_index = {str(v): k for k, v in dict(enumerate(self.atlas_intervals)).items()}
@@ -215,6 +233,10 @@ class UXM(DECmodel):
         if self.config["weights"]:
             self.alpha = uxm(self.atlas, self.U, self.N)
         else:
+            # Debugging statement printing the the dimensions of self.atlas and self.U with a description
+            print("Dimensions of self.atlas: ", self.atlas.shape)
+            print("Dimensions of self.U: ", len(self.U))
+
             self.alpha = uxm(self.atlas, self.U)
 
 
