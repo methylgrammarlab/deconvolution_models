@@ -386,12 +386,12 @@ def main(ctx, **kwargs):
     else:
         em_model.run_model()
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
 
 #%%
-import os
-os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
+# import os
+# os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
 # config = {"cpg_coordinates": "demo/hg19.CpG.bed.sorted.gz", "bedfile":True,
 #           "genomic_intervals":"demo/U250.tsv",
 #           "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
