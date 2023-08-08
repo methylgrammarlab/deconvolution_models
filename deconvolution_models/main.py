@@ -386,19 +386,32 @@ def main(ctx, **kwargs):
     else:
         em_model.run_model()
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
 #%%
-# import os
-# os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
+import os
+os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
 # config = {"cpg_coordinates": "demo/hg19.CpG.bed.sorted.gz", "bedfile":True,
 #           "genomic_intervals":"demo/U250.tsv",
 #           "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
 #           "epiformat":"old_epiread_A", "header":False, "epiread_files":["demo/mixture.epiread.gz"],
 #           "atlas_file": "demo/beta_atlas.txt",
-#   "num_iterations": 10, "stop_criterion": 1e-07, "random_restarts": 1
+#           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/2_rep25_data.npy",
+#           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/2_rep25_metadata_reatlas.npy",
+#   "num_iterations": 10, "stop_criterion": 1e-07, "random_restarts": 1, "summing":False,
+#           "min_length":4, "u_threshold":0.25,
 #
+#           }
+
+# config = {"cpg_coordinates": "demo/hg19.CpG.bed.sorted.gz", "bedfile":True,
+#           "genomic_intervals":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/sensitivity_200723_U250_merged_regions_file.bed",
+#           "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
+#           "epiformat":"old_epiread_A", "header":False, "epiread_files":["/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/sensitivity_200723_U250_4_rep15_mixture.epiread.gz"],
+#           "atlas_file": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/sensitivity_200723_U250_atlas_over_regions.txt",
+#             "percent_u": "/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/sensitivity_200723_U250_percent_U.bedgraph",
+#   "num_iterations": 10, "stop_criterion": 1e-05, "random_restarts": 1, "summing":False,
+#           "min_length":1, "u_threshold":0.25, "npy":False, "weights":False, "minimal_cpg_per_read":1
 #           }
 #
 # em_model = CelfieISH(config)
