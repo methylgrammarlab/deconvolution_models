@@ -114,7 +114,10 @@ class CelfieISH:
         self.x = [self.x[i][:,ref_cov[i]] for i in range(len(self.x))]
         has_cov = np.array([(~(x == NOVAL)).any() for x in self.x]) #empty regions, remove
         self.beta = list(compress(self.beta, has_cov))
-        self.x = list(np.array(self.x, dtype=object)[has_cov])
+        
+#        self.x = list(np.array(self.x, dtype=object)[has_cov])
+        self.x = [item for item, cov in zip(self.x, has_cov) if cov]  # I am not sure why the above version doesn't work. I was getting ValueError: could not broadcast input array from shape (100,2) into shape (100,) for the pytest test.
+
         if self.origins:
             self.origins = list(compress(self.origins, has_cov))
 
