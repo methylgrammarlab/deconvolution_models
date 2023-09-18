@@ -1,1 +1,2 @@
 supplementary/hg19.CpG.bed.gz filter=lfs diff=lfs merge=lfs -text
+supplementary/hg19_pat_cpg.bed.gz filter=lfs diff=lfs merge=lfs -text
