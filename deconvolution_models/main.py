@@ -386,12 +386,12 @@ def main(ctx, **kwargs):
     else:
         em_model.run_model()
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
 #%%
-# import os
-# os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
+import os
+os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
 # config = {"cpg_coordinates": "demo/hg19.CpG.bed.sorted.gz", "bedfile":True,
 #           "genomic_intervals":"demo/U250.tsv",
 #           "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
@@ -414,5 +414,20 @@ if __name__ == '__main__':
 #           "min_length":1, "u_threshold":0.25, "npy":False, "weights":False, "minimal_cpg_per_read":1
 #           }
 #
-# em_model = CelfieISH(config)
-# em_model.run_model()
+config = {"bedfile": True, "header": False, "cpg_coordinates": "demo/hg19.CpG.bed.sorted.gz",
+        "npy": True, "depth": 4.5, "num_iterations": 30000, "random_restarts": 1,
+          "true_alpha": "[0.00201613,0.00403226,0.00604839,0.00806452,0.01008065,0.01209677,0.0141129 ,0.01612903,0.01814516,0.02016129,0.02217742,0.02419355,0.02620968,0.02822581,0.03024194,0.03225806,0.03427419,0.03629032,0.03830645,0.04032258,0.04233871,0.04435484,0.04637097,0.0483871 ,0.05040323,0.05241935,0.05443548,0.05645161,0.05846774,0.06048387,0.0625]",
+          "stop_criterion": 1e-05, "min_length": 4, "u_threshold": 0.25,
+          "epiread_files": ["tests/data/type3_markers_041123_10_rep0_mixture.epiread.gz"],
+          "epiformat": "old_epiread_A",
+          "atlas_file": "tests/data/type3_markers_041123_atlas_over_regions.txt",
+          "genomic_intervals": "tests/data/type3_markers_041123_merged_regions_file.bed",
+          "cell_types": ["Blood-B", "Eryth-prog", "Gastric-Ep", "Breast-Luminal-Ep", "Pancreas-Alpha",
+                         "Ovary+Endom-Ep", "Small-Int-Ep", "Lung-Ep-Alveo", "Adipocytes", "Breast-Basal-Ep",
+                         "Prostate-Ep", "Oligodend", "Pancreas-Duct", "Head-Neck-Ep", "Endothelium", "Neuron",
+                         "Blood-T", "Blood-NK", "Blood-Granul", "Blood-Mono+Macro", "Liver-Hep", "Pancreas-Acinar",
+                         "Bladder-Ep", "Thyroid-Ep", "Kidney-Ep", "Pancreas-Delta", "Heart-Cardio", "Colon-Ep",
+                         "Lung-Ep-Bron", "Pancreas-Beta", "Fallopian-Ep"], "lambdas": "", "percent_u": "", "weights": False, "thetas": ""}
+
+em_model = CelfieISH(config)
+em_model.run_model()
