@@ -161,7 +161,8 @@ class CelfieISH:
         assert not np.isnan(new_alpha).any(), "alpha has NaN"
         return new_alpha
 
-    def test_convergence(self, new_alpha):
+    def test_convergence(self, new_alpha, iteration):
+        print("Dec editing. celfieish. iteration: ", iteration, ", alpha diff: ", np.mean(abs(new_alpha - self.alpha)) / np.mean(abs(self.alpha)))
         alpha_diff = np.mean(abs(new_alpha - self.alpha)) / np.mean(abs(self.alpha))
         return alpha_diff < self.convergence_criteria
 
@@ -184,7 +185,7 @@ class CelfieISH:
             # ll.append(self.get_ll())
             z = self.log_expectation(self.alpha)
             new_alpha = self.maximization(z)
-            if i and self.test_convergence(new_alpha):
+            if i and self.test_convergence(new_alpha, i):
                 break
 
             else:  # set current evaluation of alpha and gamma

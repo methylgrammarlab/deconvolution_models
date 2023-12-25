@@ -403,6 +403,8 @@ def main(ctx, **kwargs):
     else: # config["model"]=='epistate':
         model=Epistate
     em_model = model(config)
+
+    print("Dec editing. config: " + config["model"])
     if config["data_file"] is not None and config["metadata_file"] is not None:
         em_model.run_from_npy()
     else:
