@@ -16,7 +16,6 @@ Portions of the code are licensed under:
 import numpy as np
 import pandas as pd
 import sys
-sys.path.append("/Users/ireneu/PycharmProjects/epiread-tools")
 from epiread_tools.naming_conventions import *
 from scipy import optimize
 

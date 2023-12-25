@@ -91,8 +91,11 @@ class DECmodel:
         self.write_npy()
 
     def run_model(self):
+        print("Dec editing. run_model(): read_mixture")
         self.read_mixture()
+        print("Dec editing. run_model(): read_atlas")
         self.read_atlas()
+        print("Dec editing. run_model(): deconvolute")
         self.deconvolute()
         if self.config["npy"]:
             self.write_npy()
@@ -169,17 +172,38 @@ class UXM(DECmodel):
 
     def read_mixture(self):
         reader = self.reader(self.config)
+        print("Dec editing. read_mixture(). self.reader = " + str(self.reader))
         self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
+
+        # # Debugging - Print the first 5 matrices in self.matrices
+        # print("First 5 matrices in self.matrices:\n")
+        # for i, matrix in enumerate(self.matrices[:5]):
+        #     print(f"Matrix {i}:\n{matrix.toarray()}\n")
+        # exit()
+
         self.matrices = [x.todense() for x in self.matrices]
         self.calc_u()
 
     def calc_u(self):
+
+        print("Dec editing. calc_u(): self.min_length = " + str(self.min_length) + "\n\tNOVAL = " + str(NOVAL))
+
+        
+        count = 0
         for mat in self.matrices:
             x_c_v = np.array(mat != NOVAL)
+
+
             # filter short reads
-            print("x_c_v shape" + str(x_c_v.shape))
-            self.len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel()
-            print("len_filt = " + str(self.len_filt))
+            self.len_filt = (np.sum(x_c_v, axis=1) >= self.min_length).ravel() # This sums each row (read)
+
+            # # Debugging - Print np.array(mat)
+            # print("np.array(mat):\n" + str(np.array(mat)))
+            # print("x_c_v:\n" + str(x_c_v));
+            # print("x_c_v shape" + str(x_c_v.shape))
+            # print("len_filt = " + str(self.len_filt))  # This is an array. BUG - right now it always ends up [False False False ...], so always empty
+
+
             if not np.sum(self.len_filt):  # empty region
                 self.U.append(0)
                 self.N.append(0)
@@ -188,13 +212,27 @@ class UXM(DECmodel):
                 self.U.append(calc_percent_U(small, self.config["u_threshold"]))
                 self.N.append(small.shape[0])
 
+            count += 1
+
     def filter_empty(self):
 
         print(np.array(self.N)[:3])
         empty = np.array(self.N) == 0
         self.U = list(np.array(self.U)[~empty])
 
+        # Additional debugging print statements
+        print("Length of self.N:", len(self.N))
+        print("Length of empty array:", len(empty))
+        print("First few elements of self.N:", self.N[:5])
+        print("First few elements of empty array:", empty[:5])
+
+        # Print number of True values in empty array
+        print("Number of True values in empty array:", np.sum(empty))
+
         # Print out the first 3 rows of self.atlas
+        print("B2.5 self.atlas_intervals.shape: ", np.array(self.atlas_intervals).shape)
+        print("B2.5 self.atlas.shape: ", self.atlas.shape)
+        print("First 3 rows (self.atlas[:3,:]):")
         print(self.atlas[:3,:])
 
         self.atlas=self.atlas[~empty,:]
@@ -228,6 +266,7 @@ class UXM(DECmodel):
         self.atlas = np.vstack(np.load(self.config["metadata_file"], allow_pickle=True))
 
     def deconvolute(self):
+        print("Dec editing. deconvolute(): call filter_empty() ")
         self.filter_empty() #Note: this messes up the interval/cpgs
         self.i = np.sum(self.N)
         if self.config["weights"]:
