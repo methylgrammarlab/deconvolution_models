@@ -412,6 +412,10 @@ class Epistate(CelfieISH):
               is_flag=True, default=False)
 @click.option('--npy', help='output .npy file instead of text (for pipelines)',
               is_flag=True, default=False)
+
+@click.option('--modbam_qual', type=float, default=0.9, help='minimal quality score for modbam reads (0-1, default 0.9)')
+@click.option('--modbam_weight_reads', is_flag=True, default=False, help='weight reads with more CpGs higher (default False)')
+
 @click.version_option()
 @click.pass_context
 def main(ctx, **kwargs):
