@@ -91,11 +91,11 @@ class DECmodel:
         self.write_npy()
 
     def run_model(self):
-        print("Dec editing. run_model(): read_mixture")
+        print("Dec2 editing. run_model(): read_mixture")
         self.read_mixture()
         print("Dec editing. run_model(): read_atlas")
         self.read_atlas()
-        print("Dec editing. run_model(): deconvolute")
+        print("Dec2 editing. run_model(): deconvolute")
         self.deconvolute()
         if self.config["npy"]:
             self.write_npy()
@@ -160,9 +160,6 @@ class Celfie(DECmodel):
         self.alpha, self.i = alpha_max.flatten(), i_max
 
 class UXM(DECmodel):
-    '''
-    wrapper for https://github.com/nloyfer/UXM_deconv
-    '''
     def __init__(self, config):
         super().__init__(config)
         self.U = [] #percent u
@@ -171,8 +168,10 @@ class UXM(DECmodel):
         self.min_length = self.config["min_length"]
 
     def read_mixture(self):
+        print("Dec2 editing. read_mixture(). self.reader = " + str(self.reader.__module__))
+        print("Dec2 editing. read_mixture(). self.reader = " + str(getattr(self.reader.__module__, '__file__', 'Module has no __file__ attribute')))
+        print("Dec2 editing. sys.path\n" + str(sys.path))
         reader = self.reader(self.config)
-        print("Dec editing. read_mixture(). self.reader = " + str(self.reader))
         self.interval_order, self.matrices, self.cpgs, self.origins = reader.get_matrices_for_intervals()
 
         # # Debugging - Print the first 5 matrices in self.matrices
@@ -443,7 +442,7 @@ def main(ctx, **kwargs):
         model=Epistate
     em_model = model(config)
 
-    print("Dec editing. config: " + config["model"])
+    print("Dec2 editing. config: " + config["model"])
     if config["data_file"] is not None and config["metadata_file"] is not None:
         em_model.run_from_npy()
     else:
