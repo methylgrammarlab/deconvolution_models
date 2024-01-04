@@ -118,6 +118,10 @@ chr1    46       CT    1
 chr1    47       CC..TC  1
 chr1    47       T       13
 ```
+- **What is the mapper_slop parameter?**
+  - Instead of holding the entire genome in memory, we only want the marker regions. To allow partially overlapping reads to parse correctly, 
+  you need to allow for a little more room. Too much slop will make a large memory demand. Too little, and overlapping reads won't parse and the program will crash. 
+  We suggest setting it to no less than the maximal read length in your data, so nothing gets truncated. 
 
 If you use pat, ALL coordinates should be in "pat," meaning the CpG number is used instead of genomic. The CpG file will read something like:
 
@@ -126,6 +130,12 @@ chr1    1   2   CpG1
 chr1    2   3   CpG2
 chr1    3   4   CpG3
 ```
+- **Will this just be a list from 1 to 28 million?**
+  - Basically, yes. This program was built with Epiread in mind, so the adjustment for pat is not the most efficient.
+- **What is the load_slop parameter?**
+  - Since he pat format doesn't have an end coordinate, loading only the marker regions will ignore partial overlaps. For example, if your region of interest is chr1:10-20, 
+  a read starting at chr1:8 would not be loaded. We increase the intervals on the left by the load_slop to compensate for this. Note that the mapper_slop is for holding memory, and the load_slop 
+  is just for cutting the regions out of the mixture file. load_slop <= mapper_slop
 
 The marker regions should also be translated to "pat." To do that, keep a "rosetta" file with both genomic and "pat" coordinates:
 
