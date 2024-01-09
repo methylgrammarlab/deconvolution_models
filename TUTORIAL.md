@@ -16,7 +16,9 @@ In this tutorial, we will focus on running CelFiE-ISH to deconvolute WGBS data.
 
 ### Marker Regions
 
-Marker regions represent intervals where methylation differences between cell types are expected. For the Loyfer atlas, we recommend using the U250 regions available in their supplementary table 4b. If you have your own reference dataset, utilize [UXM](https://github.com/nloyfer/UXM_deconv) or [TIM](https://github.com/christacaggiano/celfie) to select a marker region set. Marker regions can be provided either in a tab-delimited file format:
+Marker regions represent intervals where methylation differences between cell types are expected. 
+For the Loyfer atlas, we recommend using the U250 regions available in their supplementary table 4b.
+If you have your own reference dataset, utilize [UXM](https://github.com/nloyfer/UXM_deconv) or [TIM](https://github.com/christacaggiano/celfie) to select a marker region set. Marker regions can be provided either in a tab-delimited file format:
 
 ```shell
 chr1    1500    1770
@@ -45,6 +47,18 @@ chr1    1500    1501    3   10  9   10
 chr1    1505    1506    29  30  4   5
 ```
 
+Your atlas file must contain all CpGs within the marker regions, as determined by the CpG file below.
+There should be no missing values and no missing CpGs. If you have no coverage of certain regions,
+indicate 0 methylation, 0 coverage, like so:
+
+```shell
+chr start   end alpha_meth  alpha_cov   beta_meth   beta_cov
+chr1    1500    1501    0   0  9   10
+chr1    1505    1506    0  0  4   5
+```
+Excluding CpGs that are in the marker regions from the reference atlas, even if there is no coverage across all samples,
+may cause unexpected behaviour, errors or alignment issues. 
+
 Options:
 
 - `-a`, `--atlas_file`: Path to the atlas file containing methylation and coverage for each cell type.
@@ -55,13 +69,8 @@ Notes:
 * CelFiE-ISH requires one row for each CpG, so a marker region with 100 CpGs would be represented by 100 rows.
 * The actual coverage is only used in the ReAtlas model. If you have array data with beta values, you can arrange them in a similar format; a beta of 0.7 can be represented as methylation 700 coverage 1000.
 * Other models (UXM, Epistate) require atlas files with different formats (see below).
-* The reference atlas may contain the entire genome or only the marker regions. Only the marker regions will be taken into account.
-* This file should be tabix-indexed for access:
+* The reference atlas should only contain the marker regions, as it is loaded entirely into memory.
 
-```shell
-bgzip atlas.file
-tabix -p bed atlas.file.gz
-```
 
 ### CpG File
 
@@ -85,11 +94,15 @@ chr1    10468 10493 A00222:175:HGM72DMXX:2:1107:11089:34882 1       -       1046
 
 Note: 10472 is not in the CpG file! This will cause an error.
 
-The CpG file should not be limited just to the marker regions to ensure proper alignment of partially overlapping reads. It should also be zipped and indexed.
+The CpG file should not be limited just to the marker regions to ensure proper alignment of partially overlapping reads. It should be  [tabix](http://www.htslib.org/doc/tabix.html) zipped and indexed:
+```shell
+bgzip cpg.file
+tabix -p bed cpg.file.gz
+```
 
 ### Mixture File
 
-This is the file you want to deconvolute, and it can have one of several formats:
+This is the file you want to deconvolute. It should be gzipped and indexed with [tabix](http://www.htslib.org/doc/tabix.html). It can have one of several formats:
 
 - `-m`, `--mixture`: Path to the mixture file to deconvolute.
 - `--epiformat`: Specify the format of the epiread files. Available options are 'old_epiread', 'old_epiread_A', and 'pat'.
@@ -133,7 +146,7 @@ chr1    3   4   CpG3
 - **Will this just be a list from 1 to 28 million?**
   - Basically, yes. This program was built with Epiread in mind, so the adjustment for pat is not the most efficient.
 - **What is the load_slop parameter?**
-  - Since he pat format doesn't have an end coordinate, loading only the marker regions will ignore partial overlaps. For example, if your region of interest is chr1:10-20, 
+  - Since the pat format doesn't have an end coordinate, loading only the marker regions will ignore partial overlaps. For example, if your region of interest is chr1:10-20, 
   a read starting at chr1:8 would not be loaded. We increase the intervals on the left by the load_slop to compensate for this. Note that the mapper_slop is for holding memory, and the load_slop 
   is just for cutting the regions out of the mixture file. load_slop <= mapper_slop
 
