@@ -195,8 +195,8 @@ CelFiE-ISH runs Expectation-Maximization to estimate the cell type proportions.
 ## Other models
 
 ### CelFiE
-We support running [CelFiE](https://github.com/christacaggiano/celfie) through this package. 
-CelFIE can run on the same atlas as CelFiE-ISH. To sum Each region into a composite site use:
+We support running [CelFiE](https://github.com/christacaggiano/celfie) through this package. However, we cannot guarantee any fixes or updates will be implemented. 
+Use the original package to get the most recent supported version. CelFIE can run on the same atlas as CelFiE-ISH. To sum Each region into a composite site use:
 - `-s`, `--summing`: Perform summing for each marker region (CelFiE sum).
 
 ### UXM
