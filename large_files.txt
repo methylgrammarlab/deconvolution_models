@@ -1,2 +1,0 @@
-/Users/ireneu/PycharmProjects/deconvolution_models/supplementary/hg19.CpG.bed.gz
-/Users/ireneu/PycharmProjects/deconvolution_models/supplementary/hg19_pat_cpg.bde.gz
