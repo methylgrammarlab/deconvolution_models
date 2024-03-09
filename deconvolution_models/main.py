@@ -391,8 +391,8 @@ if __name__ == '__main__':
     main()
 
 #%%
-# import os
-# os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
+import os
+os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
 # config = {"cpg_coordinates": "demo/hg19.CpG.bed.sorted.gz", "bedfile":True,
 #           "genomic_intervals":"demo/U250.tsv",
 #           "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
@@ -432,5 +432,29 @@ if __name__ == '__main__':
 #           "lambdas": "", "percent_u": "tests/data/atlas_U1000_32cellTypes_hg38_for_irene.tsv", "weights": False,
 #           "summing": False,"thetas": ""}
 #
-# em_model = Celfie(config)
+
+# config = {"bedfile": True, "header": False, "cpg_coordinates": "tests/data/hg19_pat_cpg.bed.gz", "npy": True,
+#           "depth": 100, "num_iterations": 30000, "stop_criterion": 1e-07,
+#           "random_restarts": 1, "true_alpha": "[0.03,0.97]", "minimal_cpg_per_read": 1,
+#           "target_prop": 3.0, "min_length": 4, "u_threshold": 0.25, "epiread_files": ["tests/data/rrbs_100x_spike_in_6_rep20_mixture.epiread.gz"],
+#           "epiformat": "pat", "atlas_file": "results/rrbs_100x_spike_in_atlas_over_regions.txt",
+#           "genomic_intervals": "tests/data/rrbs_100x_spike_in_merged_regions_file.bed",
+#           "cell_types": ["Adipocytes", "Endothelium", "Colon-Fibro", "Heart-Fibro", "Dermal-Fibro", "Skeletal-Musc", "Smooth-Musc", "Heart-Cardio", "Bone-Osteob", "Oligodend", "Neuron", "Liver-Hep", "Pancreas-Duct", "Pancreas-Acinar", "Pancreas-Delta", "Pancreas-Beta", "Pancreas-Alpha", "Kidney-Ep", "Thyroid-Ep", "Fallopian-Ep", "Ovary+Endom-Ep", "Eryth-prog", "Blood-T", "Blood-NK", "Blood-Mono+Macro", "Blood-Granul", "Blood-B", "Epid-Kerat", "Head-Neck-Ep", "Lung-Ep-Bron", "Prostate-Ep", "Bladder-Ep", "Breast-Luminal-Ep", "Breast-Basal-Ep", "Lung-Ep-Alveo", "Gallbladder", "Gastric-Ep", "Colon-Ep", "Small-Int-Ep"],
+#           "percent_u": "results/rrbs_100x_spike_in_percent_U.bedgraph", "weights": False,
+#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/rrbs_sensitivity_lambdas.bedgraph",
+#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/rrbs_sensitivity_thetas.bedgraph"}
+# em_model = Epistate(config)
 # em_model.run_model()
+
+# config = {"bedfile": True, "header": False, "cpg_coordinates": "/Users/ireneu/PycharmProjects/deconvolution_models/demo/hg19.CpG.bed.sorted.gz", "npy": True,
+#           "depth": 100, "num_iterations": 30000, "stop_criterion": 1e-07,
+#           "random_restarts": 1, "true_alpha": "[0.03,0.97]", "minimal_cpg_per_read": 1,
+#           "target_prop": 3.0, "min_length": 4, "u_threshold": 0.25, "epiread_files": ["tests/data/epistate_U250_binary_10_rep0_mixture.epiread.gz"],
+#           "epiformat": "old_epiread_A",
+#           "genomic_intervals": "tests/data/epistate_U250_binary_merged_regions_file.bed",
+#           "cell_types": [str(x) for x in range(32)], "weights": False,
+#           "lambdas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/epistate_U250_binary_lambdas.bedgraph",
+#           "thetas":"/Users/ireneu/PycharmProjects/deconvolution_models/tests/data/epistate_U250_binary_thetas.bedgraph"}
+# em_model = Epistate(config)
+# em_model.run_model()
+#

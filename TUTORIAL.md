@@ -71,6 +71,7 @@ Notes:
 * Other models (UXM, Epistate) require atlas files with different formats (see below).
 * The reference atlas should only contain the marker regions, as it is loaded entirely into memory.
 
+The Loyfer atlas, formatted for deconvolution, can be found at Zenodo: 10.5281/zenodo.10799745. 
 
 ### CpG File
 
@@ -99,6 +100,7 @@ The CpG file should not be limited just to the marker regions to ensure proper a
 bgzip cpg.file
 tabix -p bed cpg.file.gz
 ```
+CpG files for hg19, for either "epiread" or "pat" formats can be found at Zenodo: 10.5281/zenodo.10799745. 
 
 ### Mixture File
 
@@ -239,6 +241,7 @@ The atlas file is specified with "percent_u", rather than the "atlas_file" param
 ### Epistate
 Epistate also has its own atlas format. This atlas requires read-level information on the reference samples, so cannot be constructed from BED/BEDGRAPH files. 
 The atlas is divided into two files: thetas - the two epistates per region, and lambdas - the probability of theta A per region.
+Theta and Lambda files for the Loyfer atlas, formatted for deconvolution, can be found at Zenodo: 10.5281/zenodo.10799745. 
 To construct such an atlas see the [bimodal_detector](https://github.com/methylgrammarlab/bimodal_detector/tree/master) package. 
 Note that the iterative read-level estimation process can be computationally intensive, and therfore may be cumbersome with a large number of reference samples or a large region list. 
 
