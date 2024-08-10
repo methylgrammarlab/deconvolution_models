@@ -37,6 +37,8 @@ Options:
 - `-b`, `--bedfile`: The intervals (-i) are in a bedfile instead of a comma-delimited list.
 - `--header`: Specifies that the bedgraph file with regions to process has a header (e.g., CHROM START END).
 
+Note that we use Python slicing, so the first index is included and the last index is excluded.
+
 ### Reference Atlas
 
 The reference atlas for CelFiE-ISH should contain one row *per CpG* within each marker region, with methylation and coverage information for each reference cell type:
@@ -166,6 +168,8 @@ Use [bedtools](https://bedtools.readthedocs.io/en/latest/content/tools/map.html)
 ```shell
 bedtools map -a genomic.sorted.tsv -b hg19.pat_rosetta.sorted.bed -c 4,4 -o min,max
 ```
+Note that we use Python slicing, so the first index is included and the last index is excluded. 
+An interval of 1-3 would include CpG1,CpG2 only. Adjust your interval borders accordingly to avoid losing edge CpGs.
 
 The atlas should also be in "pat."
 
