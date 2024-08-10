@@ -168,7 +168,7 @@ Use [bedtools](https://bedtools.readthedocs.io/en/latest/content/tools/map.html)
 ```shell
 bedtools map -a genomic.sorted.tsv -b hg19.pat_rosetta.sorted.bed -c 4,4 -o min,max
 ```
-Note that we use Python slicing, so the first index is included and the last index is excluded. 
+Note that we use Python slicing, so the first index is included and the last index is excluded.
 An interval of 1-3 would include CpG1,CpG2 only. Adjust your interval borders accordingly to avoid losing edge CpGs.
 
 The atlas should also be in "pat."
