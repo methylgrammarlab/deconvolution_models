@@ -34,7 +34,7 @@ from deconvolution_models.celfie_ish_reatlas import CelfieISHReatlas as reatlas
 from deconvolution_models.epistate import Epistate as epistate
 from deconvolution_models.UXM import uxm
 import numpy as np
-from epiread_tools.epiparser import EpireadReader, CoordsEpiread,AtlasReader, EpiAtlasReader, UXMAtlasReader
+from epiread_tools.epiparser import EpireadReader, CoordsEpiread,AtlasReader, EpiAtlasReader, UXMAtlasReader, PatReader
 from epiread_tools.epiformat import epiformat_to_reader
 from epiread_tools.naming_conventions import *
 from epiread_tools.em_utils import calc_coverage, calc_methylated, calc_percent_U
@@ -387,8 +387,8 @@ def main(ctx, **kwargs):
     else:
         em_model.run_model()
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
 #%%
 import os
@@ -458,3 +458,34 @@ os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
 # em_model = Epistate(config)
 # em_model.run_model()
 #
+
+# config = {"bedfile": False, "header": False, "cpg_coordinates": "tests/data/hg38_pat_cpg.bed.gz",
+#         "npy": True, "depth": 4.5, "num_iterations": 30000, "random_restarts": 1,
+#           "true_alpha": "[0.00201613,0.00403226,0.00604839,0.00806452,0.01008065,0.01209677,0.0141129 ,0.01612903,0.01814516,0.02016129,0.02217742,0.02419355,0.02620968,0.02822581,0.03024194,0.03225806,0.03427419,0.03629032,0.03830645,0.04032258,0.04233871,0.04435484,0.04637097,0.0483871 ,0.05040323,0.05241935,0.05443548,0.05645161,0.05846774,0.06048387,0.0625]",
+#           "stop_criterion": 1e-07, "min_length": 4, "u_threshold": 0.25,
+#           "epiread_files": ["tests/data/HU.10.filtered.pat.gz"],
+#           "epiformat": "pat",
+#           "atlas_file": "tests/data/Filippo_atlas_over_regions.txt",
+#           "genomic_intervals": ["chr6:10582030-10582037","chr3:5063628-5063636"],
+#           "cell_types": ["Adipocytes", "Endothel", "Bladder-Ep", "Blood-B", "Blood-Granul", "Blood-Mono+Macro",
+#                          "Blood-NK", "Blood-T", "Eryth-prog", "Breast-Basal-Ep", "Breast-Luminal-Ep", "Neuron",
+#                          "Oligodend", "Head-Neck-Ep", "Gastric-Ep", "Small-Int-Ep", "Colon-Ep", "Heart-Cardio",
+#                          "Fallopian-Ep", "Kidney-Ep", "Liver-Hep", "Lung-Ep-Alveo", "Lung-Ep-Bron", "Ovary-Ep",
+#                          "Pancreas-Acinar", "Pancreas-Duct", "Pancreas-Alpha", "Pancreas-Beta", "Pancreas-Delta",
+#                          "Prostate-Ep", "Thyroid-Ep", "Megakaryocyte"],
+#           "lambdas": "", "percent_u": "tests/data/atlas_U1000_32cellTypes_hg38_for_irene.tsv", "weights": False,
+#           "summing": False,"thetas": ""}
+
+config = {"bedfile": True, "header": False, "cpg_coordinates": "tests/data/efrat/hg38_pat_cpg_from_netanel.bed.gz",
+        "npy": True, "depth": 4.5, "num_iterations": 30000, "random_restarts": 1,
+          "true_alpha": "[0.00201613,0.00403226,0.00604839,0.00806452,0.01008065,0.01209677,0.0141129 ,0.01612903,0.01814516,0.02016129,0.02217742,0.02419355,0.02620968,0.02822581,0.03024194,0.03225806,0.03427419,0.03629032,0.03830645,0.04032258,0.04233871,0.04435484,0.04637097,0.0483871 ,0.05040323,0.05241935,0.05443548,0.05645161,0.05846774,0.06048387,0.0625]",
+          "stop_criterion": 1e-07, "min_length": 4, "u_threshold": 0.25,
+          "epiread_files": ["tests/data/efrat/HU012.01.PL4406.filtered.indexed.pat.gz"],
+          "epiformat": "pat",
+          "atlas_file": "tests/data/efrat/atlas_over_regions.bed",
+          "genomic_intervals": "tests/data/efrat/regions_sorted.bed",
+          "cell_types": ["Blood-Granul","Blood-Mono+Macro","Endothel","Epithelial","Eryth-prog","Liver-Hep","Lymphocytes","Platelets"],
+          "lambdas": "", "percent_u": "tests/data/atlas_U1000_32cellTypes_hg38_for_irene.tsv", "weights": False,
+          "summing": False,"thetas": ""}
+em_model=CelfieISH(config)
+em_model.run_model()
