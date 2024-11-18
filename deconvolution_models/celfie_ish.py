@@ -190,5 +190,14 @@ class CelfieISH:
 
         return self.alpha, i
 
+    def get_proba(self):
+        '''
+        should only run after two_step
+        :return: probabilities per cell type, origins
+        '''
+        z = self.log_expectation(self.alpha)
+        return np.hstack(z), np.hstack(self.origins)
+
+
     def get_ll(self):
         return self.log_likelihood(self.alpha)

@@ -60,7 +60,7 @@ class DECmodel:
         self.config = config
         if "epiformat" in self.config:
             self.reader = epiformat_to_reader[self.config["epiformat"]]
-        self.name, self.alpha, self.i = None, None, None
+        self.name, self.alpha, self.i, self.z, self.origins = None, None, None, None, None
 
     def read_mixture(self):
         raise NotImplementedError("read_mixture", self.name)
@@ -82,6 +82,11 @@ class DECmodel:
         alpha = (self.alpha*100).reshape(1, -1)
         np.savetxt(self.config['outfile'], alpha, fmt='%.3f', delimiter='\t')
 
+    def write_probs(self):
+        z = np.round(self.z*100, decimals=3)
+        output = np.vstack((self.origins, z)).T.astype("str")
+        np.savetxt(self.config['outfile'], output, fmt='%s', delimiter='\t')
+
     def deconvolute(self):
         raise NotImplementedError("deconvolute", self.name)
 
@@ -96,6 +101,8 @@ class DECmodel:
         self.deconvolute()
         if self.config["npy"]:
             self.write_npy()
+        if self.config["probs"]:
+            self.write_probs()
         else:
             self.write_output()
 
@@ -244,9 +251,11 @@ class CelfieISH(DECmodel):
         self.atlas_matrices = np.load(self.config["metadata_file"], allow_pickle=True)
 
     def deconvolute(self):
-        r = celfie_ish(self.matrices, self.atlas_matrices, origins=None, num_iterations=self.config['num_iterations'],
+        r = celfie_ish(self.matrices, self.atlas_matrices, origins=self.origins, num_iterations=self.config['num_iterations'],
                        convergence_criteria=self.config['stop_criterion'])
         self.alpha, self.i = r.two_step()
+        if self.config["probs"]: #get probability per cell type
+            self.z, self.origins = r.get_proba()
 
 class ReAtlas(CelfieISH):
     def __init__(self, *args, **kwargs):
@@ -328,7 +337,7 @@ class Epistate(CelfieISH):
 @click.option('-j', '--json', help='run from json config file')
 @click.option('--cpg_coordinates', help='sorted cpg bed file')
 @click.option('--outfile', help='output file path')
-@click.option('-j', '--json', help='run from json config file')
+@click.option('-p', '--probs', help='output probabilies instead of alpha', is_flag=True, default=False)
 @click.option('-i', '--genomic_intervals', help='interval(s) to process. formatted chrN:start-end, separated by commas')
 @click.option('-b', '--bedfile', help='the intervals are in a bedfile',
               is_flag=True, default=False)
@@ -387,12 +396,12 @@ def main(ctx, **kwargs):
     else:
         em_model.run_model()
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
 
 #%%
-import os
-os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
+# import os
+# os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
 # config = {"cpg_coordinates": "demo/hg19.CpG.bed.sorted.gz", "bedfile":True,
 #           "genomic_intervals":"demo/U250.tsv",
 #           "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
@@ -476,16 +485,17 @@ os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
 #           "lambdas": "", "percent_u": "tests/data/atlas_U1000_32cellTypes_hg38_for_irene.tsv", "weights": False,
 #           "summing": False,"thetas": ""}
 
-config = {"bedfile": True, "header": False, "cpg_coordinates": "tests/data/efrat/hg38_pat_cpg_from_netanel.bed.gz",
-        "npy": True, "depth": 4.5, "num_iterations": 30000, "random_restarts": 1,
-          "true_alpha": "[0.00201613,0.00403226,0.00604839,0.00806452,0.01008065,0.01209677,0.0141129 ,0.01612903,0.01814516,0.02016129,0.02217742,0.02419355,0.02620968,0.02822581,0.03024194,0.03225806,0.03427419,0.03629032,0.03830645,0.04032258,0.04233871,0.04435484,0.04637097,0.0483871 ,0.05040323,0.05241935,0.05443548,0.05645161,0.05846774,0.06048387,0.0625]",
-          "stop_criterion": 1e-07, "min_length": 4, "u_threshold": 0.25,
-          "epiread_files": ["tests/data/efrat/HU012.01.PL4406.filtered.indexed.pat.gz"],
-          "epiformat": "pat",
-          "atlas_file": "tests/data/efrat/atlas_over_regions.bed",
-          "genomic_intervals": "tests/data/efrat/regions_sorted.bed",
-          "cell_types": ["Blood-Granul","Blood-Mono+Macro","Endothel","Epithelial","Eryth-prog","Liver-Hep","Lymphocytes","Platelets"],
-          "lambdas": "", "percent_u": "tests/data/atlas_U1000_32cellTypes_hg38_for_irene.tsv", "weights": False,
-          "summing": False,"thetas": ""}
-em_model=CelfieISH(config)
-em_model.run_model()
+# config = {"bedfile": True, "probs":True, "header": False, "cpg_coordinates": "tests/data/efrat/hg38_pat_cpg_from_netanel.bed.gz",
+#         "npy": False, "depth": 4.5, "num_iterations": 30000, "random_restarts": 1,
+#           "true_alpha": "[0.00201613,0.00403226,0.00604839,0.00806452,0.01008065,0.01209677,0.0141129 ,0.01612903,0.01814516,0.02016129,0.02217742,0.02419355,0.02620968,0.02822581,0.03024194,0.03225806,0.03427419,0.03629032,0.03830645,0.04032258,0.04233871,0.04435484,0.04637097,0.0483871 ,0.05040323,0.05241935,0.05443548,0.05645161,0.05846774,0.06048387,0.0625]",
+#           "stop_criterion": 1e-07, "min_length": 4, "u_threshold": 0.25,
+#           "epiread_files": ["tests/data/efrat/HU012.01.PL4406.filtered.indexed.pat.gz"],
+#           "epiformat": "pat",
+#           "outfile": "tests/data/efrat/test_output.txt",
+#           "atlas_file": "tests/data/efrat/atlas_over_regions.bed",
+#           "genomic_intervals": "tests/data/efrat/regions_sorted.bed",
+#           "cell_types": ["Blood-Granul","Blood-Mono+Macro","Endothel","Epithelial","Eryth-prog","Liver-Hep","Lymphocytes","Platelets"],
+#           "lambdas": "", "percent_u": "tests/data/atlas_U1000_32cellTypes_hg38_for_irene.tsv", "weights": False,
+#           "summing": False,"thetas": ""}
+# em_model=CelfieISH(config)
+# em_model.run_model()
