@@ -35,7 +35,10 @@ def uxm(atlas, samp, weights=None):
     else:
         ready_samp = samp
         ready_atlas = atlas
-    mixture, residual = optimize.nnls(ready_atlas, ready_samp)
+    try:
+        mixture, residual = optimize.nnls(ready_atlas, ready_samp)
+    except ValueError:
+        raise (ValueError, "Is it possible your atlas has NaNs? Otherwise, are you sure your sample isn't uniform?")
     mixture /= np.sum(mixture)
     return mixture
 

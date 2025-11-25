@@ -1,0 +1,34 @@
+Metadata-Version: 2.1
+Name: deconvolution-models
+Version: 0.0.2
+Summary: Models for WGBS deconvolution
+Home-page: https://github.com/methylgrammarlab/deconvolution_models
+Author: Irene Unterman
+Author-email: irene.guberman@mail.huji.ac.il
+License: MIT
+Project-URL: Bug Tracker, https://github.com/methylgrammarlab/deconvolution_models/issues
+Platform: UNKNOWN
+Description-Content-Type: text/markdown
+
+# Package: deconvolution_models
+
+Contains models for methylation deconvolution
+
+
+## Usage
+
+basic install
+```
+pip install git+https://github.com/methylgrammarlab/deconvolution_models
+```
+alternatively, you may need to use an [access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+```
+pip install git+https://<PERSONAL ACCESS TOKEN>@github.com/methylgrammarlab/deconvolution_models.git
+```
+
+to deconvolute:
+```
+deconvolution -j <config.json>
+```
+
+
