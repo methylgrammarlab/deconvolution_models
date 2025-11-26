@@ -19,6 +19,9 @@ pip install git+https://<PERSONAL ACCESS TOKEN>@github.com/methylgrammarlab/deco
 
 Please note that this package requires [epiread-tools](https://github.com/methylgrammarlab/epiread-tools) to run, which should be downloaded automatically during the installation process.
 
+## Reference files
+A record of this repository along with reference files in epiread and pat formats can be found at: https://zenodo.org/records/10799835
+
 ## Getting Started
 
 To view the full list of input arguments and usage instructions, run the following command:
@@ -103,6 +106,7 @@ deconvolution --model uxm --percent_u demo/U_atlas.txt -m demo/mixture.epiread.g
 --epiformat old_epiread_A --min_length 5 --u_threshold 0.1 \
 --random_restarts 1 --outfile demo/sample_output.txt
 ```
-
+## Cite the paper
+Unterman, I., Avrahami, D., Katsman, E. Triche, T.J.Jr., Glaser, B. & Berman, B.P. CelFiE-ISH: a probabilistic model for multi-cell type deconvolution from single-molecule DNA methylation haplotypes. Genome Biol 25, 151 (2024). https://doi.org/10.1186/s13059-024-03275-x
 
 
