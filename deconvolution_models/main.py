@@ -252,7 +252,7 @@ class CelfieISH(DECmodel):
 
     def deconvolute(self):
         r = celfie_ish(self.matrices, self.atlas_matrices, origins=self.origins, num_iterations=self.config['num_iterations'],
-                       convergence_criteria=self.config['stop_criterion'])
+                       convergence_criteria=self.config['stop_criterion'], clipping=self.config["read_max_clipping_cell_type_probabilty"])
         self.alpha, self.i = r.two_step()
         if self.config["probs"]: #get probability per cell type
             self.z, self.origins = r.get_proba()
@@ -356,6 +356,7 @@ class Epistate(CelfieISH):
 @click.option('--weights', help='weights per marker region (specific to UXM)')
 @click.option('--u_threshold',type=float, help='maximal methylation to be considered U (specific to UXM)')
 @click.option('--min_length',type=int, help='only reads with at least n cpgs will be considered (specific to UXM). same as minimal_cpg_per_read but applied at the deconvolution level')
+@click.option('--read_max_clipping_cell_type_probabilty',type=float, help='probabilities below this value will be clipped to zero (specific to CelFiE-ISH)',default = 0.05)
 
 
 @click.option('-s', '--summing', help='sum each marker region (CelFiE sum)',

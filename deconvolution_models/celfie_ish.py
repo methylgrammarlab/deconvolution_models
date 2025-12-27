@@ -38,7 +38,7 @@ class CelfieISH:
     Read-based EM Algorithm for Deconvolution of Methylation sequencing
     '''
 
-    def __init__(self, mixtures, beta, origins=None, num_iterations=50, convergence_criteria=0.001, alpha=None):
+    def __init__(self, mixtures, beta, origins=None, num_iterations=50, convergence_criteria=0.001, clipping = 0.05, alpha=None):
         '''
         :param mixtures: data for deconvolution. c reads by m cpg sites
         :param beta: methylation probability for reference atlas
@@ -57,6 +57,7 @@ class CelfieISH:
         self.x_c_u = [(x == UNMETHYLATED) for x in self.x]
         self.x_c_v = [~(x == NOVAL) for x in self.x]
         self.t = self.beta[0].shape[0]
+        self.clipping = clipping
         self.alpha = alpha
 
         self.log_beta = [np.log(x) for x in self.beta]
@@ -147,13 +148,17 @@ class CelfieISH:
             z.append(np.exp(log_z))
         return z
 
-    def maximization(self, z):
+    def maximization(self, z, with_clipping=False):
         '''
         argmax value of cell type proportions
         :param z: probability of cell type indicator
         :return: alpha
         '''
         all_z = np.hstack(z)
+        #clip all values lower than "clipping"
+        if (with_clipping):
+            all_z[all_z < self.clipping] = 0
+        
         new_alpha = np.sum(all_z, axis=1)
         new_alpha /= np.sum(new_alpha)
         assert not np.isnan(new_alpha).any(), "alpha has NaN"
@@ -177,6 +182,7 @@ class CelfieISH:
             self.init_alpha()
         old = []
         # ll = []
+        z = []
         for i in range(self.num_iterations):
             old.append(self.alpha[0])
             # ll.append(self.get_ll())
@@ -187,7 +193,7 @@ class CelfieISH:
 
             else:  # set current evaluation of alpha and gamma
                 self.alpha = new_alpha
-
+        self.alpha = self.maximization(z , with_clipping = True)
         return self.alpha, i
 
     def get_proba(self):
