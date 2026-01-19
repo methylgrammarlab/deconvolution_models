@@ -204,7 +204,7 @@ class CelfieISH:
         :param clipping: probability threshold
         :return: alpha with clipped proabilities
         '''
-        z = self.log_expectation(self.alpha)
+        z = np.hstack(self.log_expectation(self.alpha))
         z[z < clipping] = 0
         alpha = np.sum(z, axis=1)
         assert np.sum(alpha)>0, "all probs lower than clipping!"
