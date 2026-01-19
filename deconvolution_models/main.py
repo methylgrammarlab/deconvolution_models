@@ -256,8 +256,8 @@ class CelfieISH(DECmodel):
         self.alpha, self.i = r.two_step()
         if self.config["probs"]: #get probability per cell type
             self.z, self.origins = r.get_proba()
-        if self.config["clipping"]: #set probs under threshold to 0
-            self.alpha = r.get_clipped_alpha(self.config["clipping"])
+        if self.config["read_max_clipping_cell_type_probabilty"]: #set probs under threshold to 0
+            self.alpha = r.get_clipped_alpha(self.config["read_max_clipping_cell_type_probabilty"])
 
 class ReAtlas(CelfieISH):
     def __init__(self, *args, **kwargs):
@@ -398,7 +398,7 @@ def main(ctx, **kwargs):
     else:
         em_model.run_model()
 
-if __name___ == '__main__':
+if __name__ == '__main__':
     main()
 
 #%%
