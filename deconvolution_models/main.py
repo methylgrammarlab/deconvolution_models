@@ -256,6 +256,8 @@ class CelfieISH(DECmodel):
         self.alpha, self.i = r.two_step()
         if self.config["probs"]: #get probability per cell type
             self.z, self.origins = r.get_proba()
+        if self.config["read_max_clipping_cell_type_probabilty"]: #set probs under threshold to 0
+            self.alpha = r.get_clipped_alpha(self.config["read_max_clipping_cell_type_probabilty"])
 
 class ReAtlas(CelfieISH):
     def __init__(self, *args, **kwargs):
@@ -356,7 +358,7 @@ class Epistate(CelfieISH):
 @click.option('--weights', help='weights per marker region (specific to UXM)')
 @click.option('--u_threshold',type=float, help='maximal methylation to be considered U (specific to UXM)')
 @click.option('--min_length',type=int, help='only reads with at least n cpgs will be considered (specific to UXM). same as minimal_cpg_per_read but applied at the deconvolution level')
-
+@click.option('--read_max_clipping_cell_type_probabilty',type=float, help='probabilities below this value will be clipped to zero (specific to CelFiE-ISH)',default = 0.05)
 
 @click.option('-s', '--summing', help='sum each marker region (CelFiE sum)',
               is_flag=True, default=False)
@@ -407,6 +409,7 @@ if __name__ == '__main__':
 #           "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
 #           "epiformat":"old_epiread_A", "header":False, "epiread_files":["demo/mixture.epiread.gz"],
 #           "atlas_file": "demo/beta_atlas.txt",
+#           "probs":False, "clipping":0.8,"npy":False,
 #           "data_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/2_rep25_data.npy",
 #           "metadata_file":"/Users/ireneu/PycharmProjects/deconvolution_simulation_pipeline/data/2_rep25_metadata_reatlas.npy",
 #   "num_iterations": 10, "stop_criterion": 1e-07, "random_restarts": 1, "summing":False,
@@ -487,13 +490,12 @@ if __name__ == '__main__':
 
 # config = {"bedfile": True, "probs":True, "header": False, "cpg_coordinates": "tests/data/efrat/hg38_pat_cpg_from_netanel.bed.gz",
 #         "npy": False, "depth": 4.5, "num_iterations": 30000, "random_restarts": 1,
-#           "true_alpha": "[0.00201613,0.00403226,0.00604839,0.00806452,0.01008065,0.01209677,0.0141129 ,0.01612903,0.01814516,0.02016129,0.02217742,0.02419355,0.02620968,0.02822581,0.03024194,0.03225806,0.03427419,0.03629032,0.03830645,0.04032258,0.04233871,0.04435484,0.04637097,0.0483871 ,0.05040323,0.05241935,0.05443548,0.05645161,0.05846774,0.06048387,0.0625]",
 #           "stop_criterion": 1e-07, "min_length": 4, "u_threshold": 0.25,
-#           "epiread_files": ["tests/data/efrat/HU012.01.PL4406.filtered.indexed.pat.gz"],
+#           "epiread_files": ["tests/data/efrat/efrat_test.pat.gz"],
 #           "epiformat": "pat",
-#           "outfile": "tests/data/efrat/test_output.txt",
-#           "atlas_file": "tests/data/efrat/atlas_over_regions.bed",
-#           "genomic_intervals": "tests/data/efrat/regions_sorted.bed",
+#           "outfile": "tests/data/efrat/error_output11.txt",
+#           "atlas_file": "tests/data/efrat/error_atlas.txt",
+#           "genomic_intervals": "tests/data/efrat/error_intervals.bed",
 #           "cell_types": ["Blood-Granul","Blood-Mono+Macro","Endothel","Epithelial","Eryth-prog","Liver-Hep","Lymphocytes","Platelets"],
 #           "lambdas": "", "percent_u": "tests/data/atlas_U1000_32cellTypes_hg38_for_irene.tsv", "weights": False,
 #           "summing": False,"thetas": ""}

@@ -198,6 +198,18 @@ class CelfieISH:
         z = self.log_expectation(self.alpha)
         return np.hstack(z), np.hstack(self.origins)
 
+    def get_clipped_alpha(self, clipping=0.05):
+        '''
+        set all probs<clipping to 0
+        :param clipping: probability threshold
+        :return: alpha with clipped proabilities
+        '''
+        z = np.hstack(self.log_expectation(self.alpha))
+        z[z < clipping] = 0
+        alpha = np.sum(z, axis=1)
+        assert np.sum(alpha)>0, "all probs lower than clipping!"
+        alpha /= np.sum(alpha)
+        return alpha
 
     def get_ll(self):
         return self.log_likelihood(self.alpha)
