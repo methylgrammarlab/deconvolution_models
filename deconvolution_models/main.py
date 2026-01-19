@@ -256,6 +256,8 @@ class CelfieISH(DECmodel):
         self.alpha, self.i = r.two_step()
         if self.config["probs"]: #get probability per cell type
             self.z, self.origins = r.get_proba()
+        if self.config["clipping"]: #set probs under threshold to 0
+            self.alpha = r.get_clipped_alpha(self.config["clipping"])
 
 class ReAtlas(CelfieISH):
     def __init__(self, *args, **kwargs):
@@ -356,7 +358,7 @@ class Epistate(CelfieISH):
 @click.option('--weights', help='weights per marker region (specific to UXM)')
 @click.option('--u_threshold',type=float, help='maximal methylation to be considered U (specific to UXM)')
 @click.option('--min_length',type=int, help='only reads with at least n cpgs will be considered (specific to UXM). same as minimal_cpg_per_read but applied at the deconvolution level')
-
+@click.option('--clipping',type=float, help='probabilities below this value will be clipped to zero (specific to CelFiE-ISH)',default = 0.05)
 
 @click.option('-s', '--summing', help='sum each marker region (CelFiE sum)',
               is_flag=True, default=False)
@@ -396,12 +398,12 @@ def main(ctx, **kwargs):
     else:
         em_model.run_model()
 
-# if __name___ == '__main__':
-#     main()
+if __name___ == '__main__':
+    main()
 
 #%%
-import os
-os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
+# import os
+# os.chdir("/Users/ireneu/PycharmProjects/deconvolution_models")
 # config = {"cpg_coordinates": "demo/hg19.CpG.bed.sorted.gz", "bedfile":True,
 #           "genomic_intervals":"demo/U250.tsv",
 #           "outfile":"/Users/ireneu/berman_lab/ALS/test.bedgraph",
