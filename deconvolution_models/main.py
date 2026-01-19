@@ -358,7 +358,7 @@ class Epistate(CelfieISH):
 @click.option('--weights', help='weights per marker region (specific to UXM)')
 @click.option('--u_threshold',type=float, help='maximal methylation to be considered U (specific to UXM)')
 @click.option('--min_length',type=int, help='only reads with at least n cpgs will be considered (specific to UXM). same as minimal_cpg_per_read but applied at the deconvolution level')
-@click.option('--clipping',type=float, help='probabilities below this value will be clipped to zero (specific to CelFiE-ISH)',default = 0.05)
+@click.option('--read_max_clipping_cell_type_probabilty',type=float, help='probabilities below this value will be clipped to zero (specific to CelFiE-ISH)',default = 0.05)
 
 @click.option('-s', '--summing', help='sum each marker region (CelFiE sum)',
               is_flag=True, default=False)

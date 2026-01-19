@@ -52,7 +52,7 @@ deconvolution --help
 - `--u_threshold`: Set the maximal methylation value to be considered as U (specific to UXM).
 - `--min_length`: Set the minimum number of CpGs required for a read to be considered at the deconvolution level (specific to UXM). Same as `--minimal_cpg_per_read` but applied at the deconvolution level.
 - `-s`, `--summing`: Perform summing for each marker region (CelFiE sum).
-- `--clipping`: probabilities below this value will be clipped to zero (specific to CelFiE-ISH)'
+- `--read_max_clipping_cell_type_probabilty`: probabilities below this value will be clipped to zero (specific to CelFiE-ISH)'
 
 
 
